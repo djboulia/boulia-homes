@@ -1,0 +1,25 @@
+{
+  "name": "boulia-homes",
+  "version": "1.0.0",
+  "description": "Home Automation App",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server/server.js",
+    "dev": "node -r dotenv/config server/server.js dotenv_config_path=./.env.dev",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "djboulia@gmail.com",
+  "license": "MIT",
+  "dependencies": {
+    "@cloudant/cloudant": "^4.3.0",
+    "axios": "^0.21.1",
+    "cookie-parser": "^1.4.5",
+    "cors": "^2.8.5",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "express-session": "^1.17.1",
+    "node-blink-security": "file:./local_modules/node-blink-security",
+    "path": "^0.12.7",
+    "smartthings-node": "0.0.4"
+  }
+}
