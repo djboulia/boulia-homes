@@ -5,18 +5,12 @@ import CardContent from '@material-ui/core/CardContent';
 import Typography from '@material-ui/core/Typography';
 import { LinearProgress } from '@material-ui/core';
 import Alert from '@material-ui/lab/Alert';
-import CameraToggle from './components/CameraToggle';
-import ThermostatsToggle from './components/ThermostatsToggle';
-import LockToggle from './components/LockToggle';
+import Toggle from './components/Toggle';
 import ServerApi from '../server/ServerApi';
 
 const useStyles = makeStyles({
   root: {
     width: '100%',
-  },
-  heading: {
-    fontSize: 14,
-    fontWeight: 600,
   },
   title: {
     fontSize: 14,
@@ -166,7 +160,7 @@ export default function System(props) {
   const lockWidget = function () {
     return (
         <Typography className={classes.title} gutterBottom>
-          <LockToggle name='Locks' checked={locked} onChange={lockChanged} />
+          <Toggle name='Locks' checked={locked} onlabel='Locked' offLabel='unlocked' onChange={lockChanged} />
         </Typography>
     )
   }
@@ -182,10 +176,10 @@ export default function System(props) {
         {!inProgress && msg}
 
         <Typography className={classes.title} gutterBottom>
-          <CameraToggle name='Cameras' checked={armed} onChange={cameraChanged} />
+          <Toggle name='Cameras' checked={armed} onlabel='Armed' offlabel='Disarmed' onChange={cameraChanged} />
         </Typography>
         <Typography className={classes.title} gutterBottom>
-          <ThermostatsToggle name='Thermostats' checked={away} onChange={thermostatChanged} />
+          <Toggle name='Thermostats' checked={away} onlabel='Away' offlabel='Home' onChange={thermostatChanged} />
         </Typography>
 
         {systems.locks && lockWidget()}
