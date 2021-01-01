@@ -160,7 +160,7 @@ export default function System(props) {
   const lockWidget = function () {
     return (
         <Typography className={classes.title} gutterBottom>
-          <Toggle name='Locks' checked={locked} onlabel='Locked' offLabel='unlocked' onChange={lockChanged} />
+          <Toggle name='Locks' checked={locked} onlabel='Locked' offlabel='Unlocked' onChange={lockChanged} />
         </Typography>
     )
   }
