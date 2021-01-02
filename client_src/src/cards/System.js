@@ -35,6 +35,18 @@ const camerasArmed = function (cameras) {
   return armed;
 }
 
+const updateCamerasStatus = function (cameras, armed) {
+
+  for (let i = 0; i < cameras.length; i++) {
+    const camera = cameras[i];
+    if (camera.status) {
+      camera.status.armed = armed;
+    }
+  }
+
+  return armed;
+}
+
 const thermostatsEco = function (thermostats) {
   let away = true;
 
@@ -56,6 +68,18 @@ const thermostatsEco = function (thermostats) {
   return away;
 }
 
+const updateThermostatsStatus = function (thermostats, away) {
+
+  for (let i = 0; i < thermostats.length; i++) {
+    const thermostat = thermostats[i];
+    if (thermostat.status) {
+      thermostat.status.eco = away;
+    }
+  }
+
+  return away;
+}
+
 const lockStatus = function (locks) {
   let locked = true;
 
@@ -69,6 +93,19 @@ const lockStatus = function (locks) {
       }
     } else {
       locked = false;
+    }
+  }
+
+  return locked;
+}
+
+const updateLocksStatus = function (locks, locked) {
+  for (let i = 0; i < locks.length; i++) {
+    const lock = locks[i];
+    if (lock.status) {
+
+      // if any of the locks are unlocked, we reflect the system as unlocked
+      lock.status.locked = locked;
     }
   }
 
@@ -100,7 +137,7 @@ export default function System(props) {
       .then((result) => {
         console.log('new state is: ', result);
         setErrorMsg(undefined);
-        setArmed(result.armed);
+        setArmed(updateCamerasStatus(systems.cameras, result.armed));        
         setInProgress(false);
       })
       .catch((e) => {
@@ -120,7 +157,7 @@ export default function System(props) {
       .then((result) => {
         console.log('new state is: ', result);
         setErrorMsg(undefined);
-        setAway(result.eco);
+        setAway(updateThermostatsStatus(systems.thermostats, result.eco));
         setInProgress(false);
       })
       .catch((e) => {
@@ -140,7 +177,7 @@ export default function System(props) {
       .then((result) => {
         console.log('new state is: ', result);
         setErrorMsg(undefined);
-        setLocked(result.locked);
+        setLocked(updateLocksStatus(systems.locks, result.locked));
         setInProgress(false);
       })
       .catch((e) => {
