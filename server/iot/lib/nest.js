@@ -88,12 +88,12 @@ const Nest = function (projectId, clientId, clientSecret, refreshToken) {
             const now = new Date();
 
             if (accessToken && (now.getTime() < expireTime)) {
-                console.log('access token still valid, expires in ' + (expireTime - now.getTime()) * 1000);
+                console.log('nest access token still valid, expires in ' + Math.floor((expireTime - now.getTime())/60000) + ' minutes.');
                 resolve(accessToken);
             } else {
                 if (accessToken) {
                     // prior init call created an accessToken, but it's now expired
-                    console.log('access token expired, refreshing');
+                    console.log('nest access token expired, refreshing');
                 }
 
                 axios.post(buildRefreshUrl(clientId, clientSecret, refreshToken))

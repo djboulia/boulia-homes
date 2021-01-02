@@ -3,7 +3,7 @@ require("dotenv").config();
 const Cloudant = require('@cloudant/cloudant');
 const CloudantDB = require('./db/cloudantdb');
 const FileDB = require('./db/filedb');
-const Blink = require('node-blink-security');
+const Blink = require('./iot/lib/blink');
 const Nest = require('./iot/lib/nest');
 const SmartThings = require('./iot/lib/smartthings');
 
@@ -77,13 +77,12 @@ module.exports = {
     },
 
     loadBlink: function () {
-        const blink = new Blink(config.blink.email,
+        const blink = new Blink(
+            config.blink.email,
             config.blink.password,
             config.blink.app,
-            {
-                auth_2FA: true,
-                device_name: config.blink.device
-            });
+            config.blink.device
+        );
 
         return blink;
     },

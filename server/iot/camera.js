@@ -1,61 +1,24 @@
-
-const status = function (blink, system, cameraId) {
-    return new Promise((resolve, reject) => {
-        const status = {};
-
-        blink.getCameras()
-            .then((cameras) => {
-
-                // console.log(blink);
-                // console.log('cameras: ' + JSON.stringify(cameras));
-                for (var id in cameras) {
-                    const camera = cameras[id];
-                    if (camera.id.toString() === cameraId.toString()) {
-                        console.log('found camera ' + camera.name + ', ' + camera.id);
-                        status.temperature = camera.temperature;
-
-                        resolve(status);
-                        return;
-                    }
-                }
-
-                const msg = 'Error: could not find camera ' + cameraId;
-                console.log(msg);
-                reject(msg);
-            })
-            .catch((error) => {
-                console.log(error);
-                reject(error);
-            });
-    });
-}
-
-
 const Camera = function (blink) {
-    let initComplete = false;
-    let lastRefresh = 0;
+    let blinkModule = undefined;
 
     /**
      * initialize or refresh the camera info
      */
     this.init = function () {
         return new Promise((resolve, reject) => {
-            if (!initComplete) {
-                console.log('setting up blink library');
-                blink.setupSystem()
-                    .then(() => {
-                        const d = new Date();
-                        lastRefresh = d.getTime();
-                        initComplete = true;
-                        resolve();
-                    })
-                    .catch((e) => {
-                        reject(e);
-                    })
-            } else {
-                console.log('blink library already initialized');
-                resolve();
-            }
+            blink.init()
+                .then((module) => {
+                    blinkModule = module;
+
+                    console.log('setting up blink library');
+                    return blinkModule.setupSystem();
+                })
+                .then(() => {
+                    resolve();
+                })
+                .catch((e) => {
+                    reject(e);
+                })
         });
     }
 
@@ -89,12 +52,12 @@ const Camera = function (blink) {
         })
     }
 
-    this.systemArmed = function(systemId) {
+    this.systemArmed = function (systemId) {
         return new Promise((resolve, reject) => {
-    
-            blink.isArmed()
+
+            blinkModule.isArmed()
                 .then((results) => {
-    
+
                     console.log('armed ', results);
                     console.log('system id ' + systemId);
 
@@ -105,24 +68,24 @@ const Camera = function (blink) {
                             return;
                         }
                     }
-    
+
                     const msg = 'Error: could not find system ' + systemId;
                     console.log(msg);
-                    reject(msg);    
+                    reject(msg);
                 })
                 .catch((error) => {
                     console.log(error);
                     reject(error);
                 });
-        });        
+        });
     }
 
-    this.systemOnline = function(systemId) {
+    this.systemOnline = function (systemId) {
         return new Promise((resolve, reject) => {
-    
-            blink.isOnline()
+
+            blinkModule.isOnline()
                 .then((results) => {
-    
+
                     console.log('online ', results);
                     console.log('system id ' + systemId);
 
@@ -133,24 +96,24 @@ const Camera = function (blink) {
                             return;
                         }
                     }
-    
+
                     const msg = 'Error: could not find system ' + systemId;
                     console.log(msg);
-                    reject(msg);    
+                    reject(msg);
                 })
                 .catch((error) => {
                     console.log(error);
                     reject(error);
                 });
-        });        
+        });
     }
 
-    this.arm = function(systemId, arm) {
+    this.arm = function (systemId, arm) {
         return new Promise((resolve, reject) => {
-    
-            blink.setArmed(arm, [systemId])
+
+            blinkModule.setArmed(arm, [systemId])
                 .then((result) => {
-    
+
                     console.log('system id ' + systemId);
                     console.log('system ', result[systemId]);
 
@@ -160,10 +123,10 @@ const Camera = function (blink) {
                     console.log(error);
                     reject(error);
                 });
-        });             
+        });
     }
 
-    this.systemStatus = function(device) {
+    this.systemStatus = function (device) {
         const self = this;
 
         return new Promise((resolve, reject) => {
@@ -174,23 +137,23 @@ const Camera = function (blink) {
 
             const systemId = device.id;
             console.log('system ', systemId);
-    
+
             self.systemArmed(systemId)
                 .then((result) => {
                     status.armed = result;
 
-                    return self.systemOnline(systemId);   
+                    return self.systemOnline(systemId);
                 })
                 .then((result) => {
                     status.online = result;
 
-                    resolve(status);  
+                    resolve(status);
                 })
                 .catch((error) => {
                     console.log(error);
                     reject(error);
                 });
-        });        
+        });
     }
 
     this.update = function (devices) {
@@ -225,13 +188,35 @@ const Camera = function (blink) {
 
     this.status = function (camera) {
         return new Promise((resolve, reject) => {
-            status(blink, camera.system, camera.id)
-                .then((result) => {
-                    resolve(result);
+            const system = camera.system;
+            const cameraId = camera.id;
+
+            const status = {};
+
+            blinkModule.getCameras()
+                .then((cameras) => {
+
+                    // console.log(blink);
+                    // console.log('cameras: ' + JSON.stringify(cameras));
+                    for (var id in cameras) {
+                        const camera = cameras[id];
+                        if (camera.id.toString() === cameraId.toString()) {
+                            console.log('found camera ' + camera.name + ', ' + camera.id);
+                            status.temperature = camera.temperature;
+
+                            resolve(status);
+                            return;
+                        }
+                    }
+
+                    const msg = 'Error: could not find camera ' + cameraId;
+                    console.log(msg);
+                    reject(msg);
                 })
-                .catch((e) => {
-                    reject(e);
-                })
+                .catch((error) => {
+                    console.log(error);
+                    reject(error);
+                });
         });
     }
 }
