@@ -6,11 +6,13 @@ import AccordionSummary from '@material-ui/core/AccordionSummary';
 import Typography from '@material-ui/core/Typography';
 import HomeIcon from '@material-ui/icons/Home';
 import System from './cards/System';
-import Grid from '@material-ui/core/Grid';
 
 const useStyles = makeStyles(theme => ({
   root: {
     width: '100%',
+  },
+  accordion: {
+    padding: '0px',
   },
   icon: {
     fontSize: theme.typography.pxToRem(22.5),
@@ -34,17 +36,13 @@ export default function SystemPanel(props) {
 
   return (
     <div className={classes.root}>
-      <Accordion expanded={true}>
-        <AccordionSummary>
+      <Accordion className={classes.accordion} expanded={true}>
+        <AccordionSummary className={classes.accordion}>
           <HomeIcon className={classes.icon} color='primary' />
           <Typography className={classes.heading}>System Summary</Typography>
         </AccordionSummary>
-        <AccordionDetails>
-          <Grid container spacing={1}>
-            <Grid item xs={12} key={home.name}>
-              <System id={home._id} systems={systems} />
-            </Grid>
-          </Grid>
+        <AccordionDetails className={classes.accordion}>
+              <System name={home.name} id={home._id} systems={systems} />
         </AccordionDetails>
       </Accordion>
     </div>

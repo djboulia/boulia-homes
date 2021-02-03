@@ -6,6 +6,7 @@ import Typography from '@material-ui/core/Typography';
 import { LinearProgress } from '@material-ui/core';
 import Alert from '@material-ui/lab/Alert';
 import Toggle from './components/Toggle';
+import Grid from '@material-ui/core/Grid';
 import ServerApi from '../server/ServerApi';
 
 const useStyles = makeStyles({
@@ -115,6 +116,7 @@ const updateLocksStatus = function (locks, locked) {
 export default function System(props) {
   const classes = useStyles();
   const id = props.id;
+  const name = props.name;
   const systems = props.systems;
   console.log('systems ', systems);
 
@@ -123,6 +125,7 @@ export default function System(props) {
   const [armed, setArmed] = React.useState(camerasArmed(systems.cameras));
   const [away, setAway] = React.useState(thermostatsEco(systems.thermostats));
   const [locked, setLocked] = React.useState((systems.locks ? lockStatus(systems.locks) : undefined));
+  const [garages, setGarages] = React.useState((/*systems.garages ? systems.garages :*/ undefined));
 
   const errorAlert = (msg) => {
     return <Alert severity="error">{msg}</Alert>
@@ -137,7 +140,7 @@ export default function System(props) {
       .then((result) => {
         console.log('new state is: ', result);
         setErrorMsg(undefined);
-        setArmed(updateCamerasStatus(systems.cameras, result.armed));        
+        setArmed(updateCamerasStatus(systems.cameras, result.armed));
         setInProgress(false);
       })
       .catch((e) => {
@@ -188,6 +191,28 @@ export default function System(props) {
       });
   }
 
+  const garageChanged = function (e) {
+    console.log('garage changed ', e);
+    const id = e.id;
+    const status = e.checked;
+
+    const update = [];
+    for (let i=0; i<garages.length; i++) {
+      const garage = garages[i];
+
+      if (garage.id === id) {
+        console.log('updating garage ' + id);
+        if (garage.status) {
+          garage.status.open = status;
+        }
+      }
+
+      update.push(garage);
+    }
+
+    setGarages(update);
+  }
+
   const progressIndicator = function () {
     return <LinearProgress></LinearProgress>;
   }
@@ -196,32 +221,60 @@ export default function System(props) {
 
   const lockWidget = function () {
     return (
-        <Typography className={classes.title} gutterBottom>
-          <Toggle name='Locks' checked={locked} onlabel='Locked' offlabel='Unlocked' onChange={lockChanged} />
-        </Typography>
+      <Typography className={classes.title} gutterBottom>
+        <Toggle name='Doors' checked={locked} onlabel='Locked' offlabel='Unlocked' onChange={lockChanged} />
+      </Typography>
+    )
+  }
+
+  console.log('systems.garages ', systems.garages);
+
+  const garageWidget = function () {
+    return (
+      <Grid item xs={12} key={'garages'}>
+      <Card className={classes.root}>
+        <CardContent>
+          <Typography className={classes.title} gutterBottom>
+            Garages
+            
+        {garages.map((device, index) => (
+            <Toggle id={device.id} name={device.name} checked={(device.status) ? device.status.open : false} onlabel='Open' offlabel='Closed' onChange={garageChanged} />
+        ))}
+          </Typography>
+          </CardContent>
+      </Card>
+      </Grid>
     )
   }
 
   const msg = (errorMsg) ? errorAlert(errorMsg) : <div></div>;
 
   return (
-    <Card className={classes.root}>
-      <CardContent>
+    <Grid container spacing={1}>
+    <Grid item xs={12} key={name}>
+      <Card className={classes.root}>
+        <CardContent>
 
-        {inProgress && progressIndicator()}
+          {inProgress && progressIndicator()}
 
-        {!inProgress && msg}
+          {!inProgress && msg}
 
-        <Typography className={classes.title} gutterBottom>
-          <Toggle name='Cameras' checked={armed} onlabel='Armed' offlabel='Disarmed' onChange={cameraChanged} />
-        </Typography>
-        <Typography className={classes.title} gutterBottom>
-          <Toggle name='Thermostats' checked={away} onlabel='Away' offlabel='Home' onChange={thermostatChanged} />
-        </Typography>
+          <Typography className={classes.title} gutterBottom>
+            <Toggle name='Cameras' checked={armed} onlabel='Armed' offlabel='Disarmed' onChange={cameraChanged} />
+          </Typography>
+          <Typography className={classes.title} gutterBottom>
+            <Toggle name='Thermostats' checked={away} onlabel='Away' offlabel='Home' onChange={thermostatChanged} />
+          </Typography>
 
-        {systems.locks && lockWidget()}
+          {systems.locks && lockWidget()}
 
-      </CardContent>
-    </Card>
+
+        </CardContent>
+      </Card>
+      </Grid>
+
+      {garages && garageWidget()}
+
+  </Grid>
   );
 }

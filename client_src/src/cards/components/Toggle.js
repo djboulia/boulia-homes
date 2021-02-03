@@ -3,6 +3,7 @@ import Switch from '@material-ui/core/Switch';
 import Grid from '@material-ui/core/Grid';
 
 export default function Toggle(props) {
+    const id = props.id;
     const name = props.name;
     const onLabel = props.onlabel;
     const offLabel = props.offlabel;
@@ -10,7 +11,7 @@ export default function Toggle(props) {
 
     const handleChange = (event) => {
         if (onChange) {
-            onChange({ name: name, checked: event.target.checked });
+            onChange({ id: id, name: name, checked: event.target.checked });
         }
     };
 

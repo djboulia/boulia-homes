@@ -187,9 +187,13 @@ app.post('/api/user/me/homes/:id/systems/camera/arm', function (req, res) {
         })
 });
 
+/**
+ * turn ECO on/off for all thermostats in a home
+ */
 app.post('/api/user/me/homes/:id/systems/thermostat/eco', function (req, res) {
     console.log("got body: ", req.body);
     const id = req.params.id;
+    console.log("got id: ", id);
 
     const user = req.session.user;
 
@@ -227,6 +231,124 @@ app.post('/api/user/me/homes/:id/systems/thermostat/eco', function (req, res) {
                 .then((result) => {
                     jsonResponse(res, {
                         eco: result
+                    });
+                })
+                .catch((e) => {
+                    console.log('error: ', e);
+                    jsonError(res, 404, 'Error arming cameras.');
+                })
+        })
+        .catch((e) => {
+            console.log('error: ', e);
+            jsonError(res, 404, 'Error retrieving homes.');
+        })
+});
+
+/**
+ * turn ECO on/off for an individual thermostat
+ */
+app.post('/api/user/me/thermostats/:id/eco', function (req, res) {
+    console.log("got body: ", req.body);
+    const id = req.params.id;
+    console.log("got id: ", id);
+
+    const user = req.session.user;
+
+    if (!user) {
+        jsonError(res, 401, 'Please log in.');
+        return;
+    }
+
+    // for now, just return a positive response if there is any user/pass given
+    const body = req.body;
+
+    devices.init()
+        .then(() => {
+            const thermostats = devices.getThermostats();
+
+            thermostats.setEco(id, body.eco)
+                .then((result) => {
+                    jsonResponse(res, {
+                        eco: result
+                    });
+                })
+                .catch((e) => {
+                    console.log('error: ', e);
+                    jsonError(res, 404, 'Error arming cameras.');
+                })
+        })
+        .catch((e) => {
+            console.log('error: ', e);
+            jsonError(res, 404, 'Error retrieving homes.');
+        })
+});
+
+/**
+ * turn mode to HEAT, COOL or OFF for an individual thermostat
+ */
+app.post('/api/user/me/thermostats/:id/mode', function (req, res) {
+    console.log("got body: ", req.body);
+    const id = req.params.id;
+    console.log("got id: ", id);
+
+    const user = req.session.user;
+
+    if (!user) {
+        jsonError(res, 401, 'Please log in.');
+        return;
+    }
+
+    // for now, just return a positive response if there is any user/pass given
+    const body = req.body;
+
+    devices.init()
+        .then(() => {
+            const thermostats = devices.getThermostats();
+
+            thermostats.setMode(id, body.mode)
+                .then((result) => {
+                    jsonResponse(res, {
+                        mode: result
+                    });
+                })
+                .catch((e) => {
+                    console.log('error: ', e);
+                    jsonError(res, 404, 'Error arming cameras.');
+                })
+        })
+        .catch((e) => {
+            console.log('error: ', e);
+            jsonError(res, 404, 'Error retrieving homes.');
+        })
+});
+
+/**
+ * set the target temp
+ */
+app.post('/api/user/me/thermostats/:id/temp', function (req, res) {
+    console.log("got body: ", req.body);
+    const id = req.params.id;
+    console.log("got id: ", id);
+
+    const user = req.session.user;
+
+    if (!user) {
+        jsonError(res, 401, 'Please log in.');
+        return;
+    }
+
+    // for now, just return a positive response if there is any user/pass given
+    const body = req.body;
+
+    devices.init()
+        .then(() => {
+            const thermostats = devices.getThermostats();
+
+            thermostats.setTemp(id, body.mode, body.temp)
+                .then((result) => {
+                    jsonResponse(res, {
+                        mode: body.mode,
+                        temp: body.temp
                     });
                 })
                 .catch((e) => {

@@ -33,13 +33,21 @@ const useStyles = makeStyles(theme => ({
 export default function ZonePanel(props) {
   const classes = useStyles();
   const [expanded, setExpanded] = React.useState(null);
+  const home = props.home;
   const zone = props.zone;
   const cameras = zone.cameras || [];
   const thermostats = zone.thermostats || [];
 
   const handleChange = panel => (event, isExpanded) => {
+    console.log('panel ', panel);
     setExpanded(isExpanded ? panel : false);
+
+    if (props.onChange) {
+      props.onChange(home, zone)
+    }
   };
+
+  console.log('expanded ', expanded);
 
   return (
     <div className={classes.root}>

@@ -151,6 +151,84 @@ const ServerApi = {
         })
     },
 
+    setThermostatEco(id, eco) {
+
+        return new Promise((resolve, reject) => {
+
+            axios
+                .post('/api/user/me/thermostats/' + id + '/eco', { eco: eco })
+                .then(res => {
+                    console.log(res.data);
+
+                    const result = res.data;
+                    if (!result.error) {
+                        resolve(result);
+                    } else {
+                        reject(result.error);
+                    }
+                })
+                .catch((e) => {
+                    console.log('error ', JSON.stringify(e));
+                    reject({
+                        code: 500,
+                        message: e.message
+                    });
+                })
+        })
+    },    
+
+    setThermostatMode(id, mode) {
+
+        return new Promise((resolve, reject) => {
+
+            axios
+                .post('/api/user/me/thermostats/' + id + '/mode', { mode: mode })
+                .then(res => {
+                    console.log(res.data);
+
+                    const result = res.data;
+                    if (!result.error) {
+                        resolve(result);
+                    } else {
+                        reject(result.error);
+                    }
+                })
+                .catch((e) => {
+                    console.log('error ', JSON.stringify(e));
+                    reject({
+                        code: 500,
+                        message: e.message
+                    });
+                })
+        })
+    },    
+
+    setThermostatTemp(id, mode, temp) {
+
+        return new Promise((resolve, reject) => {
+
+            axios
+                .post('/api/user/me/thermostats/' + id + '/temp', { mode: mode, temp: temp })
+                .then(res => {
+                    console.log(res.data);
+
+                    const result = res.data;
+                    if (!result.error) {
+                        resolve(result);
+                    } else {
+                        reject(result.error);
+                    }
+                })
+                .catch((e) => {
+                    console.log('error ', JSON.stringify(e));
+                    reject({
+                        code: 500,
+                        message: e.message
+                    });
+                })
+        })
+    },    
+
     ecoThermostatSystem(homeId, eco) {
 
         return new Promise((resolve, reject) => {

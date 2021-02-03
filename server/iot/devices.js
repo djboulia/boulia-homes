@@ -10,6 +10,10 @@ const Devices = function (camera, thermostat, lock) {
         return Promise.all(promises);
     }
 
+    this.getThermostats = function() {
+        return thermostat;
+    }
+
     const updateSystems = function (systems) {
         console.log('systems: ', systems);
 
@@ -45,7 +49,7 @@ const Devices = function (camera, thermostat, lock) {
                 const thermostats = zone.thermostats || [];
 
                 promises.push(camera.update(cameras));
-                // promises.push(updateThermostats(thermostats));
+                promises.push(thermostat.updateSystem(thermostats));
             }
 
             Promise.all(promises)
@@ -133,6 +137,7 @@ const Devices = function (camera, thermostat, lock) {
                 })
         })
     }
+
 
     /**
      * Set all locks in this home to specified status

@@ -73,8 +73,8 @@ export default function HomeTabs(props) {
           variant="fullWidth"
           aria-label="full width tabs example"
         >
-          {homes.map((row, index) => (
-            <Tab key={index} label={row.name} {...a11yProps(index)} />
+          {homes.map((home, index) => (
+            <Tab key={index} label={home.name} {...a11yProps(index)} />
           ))}
         </Tabs>
       </AppBar>
@@ -84,11 +84,12 @@ export default function HomeTabs(props) {
         onChangeIndex={handleChangeIndex}
       >
         {homes.map((home, index) => (
-          <TabPanel key={index} value={value} index={index} dir={theme.direction}>
+          <TabPanel
+          key={index} value={value} index={index} dir={theme.direction}>
             <SystemPanel home={home}/>
 
             {home.zones.map((zone, index) => (
-              <ZonePanel key={index} zone={zone} />
+              <ZonePanel key={index} home={home} zone={zone} />
             ))}
           </TabPanel>
         ))}

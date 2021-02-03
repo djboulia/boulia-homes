@@ -92,22 +92,28 @@ const useStyles = makeStyles((theme) => ({
       width: theme.spacing(9),
     },
   },
+
   appBarSpacer: theme.mixins.toolbar,
+
   content: {
     flexGrow: 1,
     height: '100vh',
     overflow: 'auto',
   },
+
   container: {
-    paddingTop: theme.spacing(4),
-    paddingBottom: theme.spacing(4),
+    padding: '0px',
+    // paddingTop: theme.spacing(4),
+    // paddingBottom: theme.spacing(4),
   },
+
   paper: {
-    padding: theme.spacing(2),
+    // padding: theme.spacing(1),
     display: 'flex',
     overflow: 'auto',
     flexDirection: 'column',
   },
+
   fixedHeight: {
     height: 240,
   },
