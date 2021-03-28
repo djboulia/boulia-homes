@@ -17,6 +17,7 @@ const Camera = function (blink) {
                     resolve();
                 })
                 .catch((e) => {
+                    console.log('Blink setup error: ', e);
                     reject(e);
                 })
         });
