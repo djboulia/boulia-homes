@@ -151,6 +151,32 @@ const ServerApi = {
         })
     },
 
+    setGarageOpen(id, open) {
+
+        return new Promise((resolve, reject) => {
+
+            axios
+                .post('/api/user/me/garages/' + id + '/open', { open: open })
+                .then(res => {
+                    console.log(res.data);
+
+                    const result = res.data;
+                    if (!result.error) {
+                        resolve(result);
+                    } else {
+                        reject(result.error);
+                    }
+                })
+                .catch((e) => {
+                    console.log('error ', JSON.stringify(e));
+                    reject({
+                        code: 500,
+                        message: e.message
+                    });
+                })
+        })
+    },    
+
     setThermostatEco(id, eco) {
 
         return new Promise((resolve, reject) => {

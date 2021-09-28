@@ -1,8 +1,10 @@
 
-const Devices = function (camera, thermostat, lock) {
+const Devices = function (camera, thermostat, lock, garage) {
 
     this.init = function () {
         const promises = [];
+
+        console.log('init all devices');
 
         promises.push(camera.init());
         promises.push(thermostat.init());
@@ -14,6 +16,10 @@ const Devices = function (camera, thermostat, lock) {
         return thermostat;
     }
 
+    this.getGarages = function() {
+        return garage;
+    }
+
     const updateSystems = function (systems) {
         console.log('systems: ', systems);
 
@@ -23,10 +29,12 @@ const Devices = function (camera, thermostat, lock) {
             const cameras = systems.cameras || [];
             const thermostats = systems.thermostats || [];
             const locks = systems.locks || [];
+            const garages = systems.garages || [];
 
             promises.push(camera.updateSystem(cameras));
             promises.push(thermostat.updateSystem(thermostats));
             promises.push(lock.updateSystem(locks));
+            promises.push(garage.updateSystem(garages));
 
             Promise.all(promises)
                 .then((results) => {

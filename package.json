@@ -20,6 +20,7 @@
     "express-session": "^1.17.1",
     "node-blink-security": "file:./local_modules/node-blink-security",
     "path": "^0.12.7",
-    "smartthings-node": "0.0.4"
+    "smartthings-node": "0.0.4",
+    "meross-cloud": "^1.4.0"
   }
 }

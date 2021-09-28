@@ -12,6 +12,7 @@ const bodyParser = require('body-parser');
 const Devices = require('./iot/devices');
 const Camera = require('./iot/camera');
 const Lock = require('./iot/lock');
+const Garage = require('./iot/garage');
 const Thermostat = require('./iot/thermostat');
 
 require("dotenv").config();
@@ -22,11 +23,13 @@ const Homes = Config.loadModel('home');
 const Blink = Config.loadBlink();
 const Nest = Config.loadNest();
 const SmartThings = Config.loadSmartThings();
+const Meross = Config.loadMeross();
 
 const camera = new Camera(Blink);
 const thermostat = new Thermostat(Nest);
 const lock = new Lock(SmartThings);
-const devices = new Devices(camera, thermostat, lock);
+const garage = new Garage(Meross);
+const devices = new Devices(camera, thermostat, lock, garage);
 
 const app = express();
 
@@ -145,7 +148,6 @@ app.post('/api/user/me/homes/:id/systems/camera/arm', function (req, res) {
         return;
     }
 
-    // for now, just return a positive response if there is any user/pass given
     const body = req.body;
 
     devices.init()
@@ -188,6 +190,45 @@ app.post('/api/user/me/homes/:id/systems/camera/arm', function (req, res) {
 });
 
 /**
+ * open or close an individual garage door
+ */
+ app.post('/api/user/me/garages/:id/open', function (req, res) {
+    console.log("got body: ", req.body);
+    const id = req.params.id;
+    console.log("got id: ", id);
+
+    const user = req.session.user;
+
+    if (!user) {
+        jsonError(res, 401, 'Please log in.');
+        return;
+    }
+
+    const body = req.body;
+
+    devices.init()
+        .then(() => {
+            const garages = devices.getGarages();
+
+            garages.open(id, body.open)
+                .then((result) => {
+                    jsonResponse(res, {
+                        open: result
+                    });
+                })
+                .catch((e) => {
+                    console.log('error: ', e);
+                    jsonError(res, 404, 'Error arming cameras.');
+                })
+        })
+        .catch((e) => {
+            console.log('error: ', e);
+            jsonError(res, 404, 'Error retrieving homes.');
+        })
+});
+
+
+/**
  * turn ECO on/off for all thermostats in a home
  */
 app.post('/api/user/me/homes/:id/systems/thermostat/eco', function (req, res) {
@@ -202,7 +243,6 @@ app.post('/api/user/me/homes/:id/systems/thermostat/eco', function (req, res) {
         return;
     }
 
-    // for now, just return a positive response if there is any user/pass given
     const body = req.body;
 
     devices.init()
@@ -259,7 +299,6 @@ app.post('/api/user/me/thermostats/:id/eco', function (req, res) {
         return;
     }
 
-    // for now, just return a positive response if there is any user/pass given
     const body = req.body;
 
     devices.init()
@@ -298,7 +337,6 @@ app.post('/api/user/me/thermostats/:id/mode', function (req, res) {
         return;
     }
 
-    // for now, just return a positive response if there is any user/pass given
     const body = req.body;
 
     devices.init()
@@ -337,7 +375,6 @@ app.post('/api/user/me/thermostats/:id/temp', function (req, res) {
         return;
     }
 
-    // for now, just return a positive response if there is any user/pass given
     const body = req.body;
 
     devices.init()
@@ -373,7 +410,6 @@ app.post('/api/user/me/homes/:id/systems/locks/lock', function (req, res) {
         return;
     }
 
-    // for now, just return a positive response if there is any user/pass given
     const body = req.body;
 
     devices.init()

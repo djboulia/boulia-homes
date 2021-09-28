@@ -125,7 +125,7 @@ export default function System(props) {
   const [armed, setArmed] = React.useState(camerasArmed(systems.cameras));
   const [away, setAway] = React.useState(thermostatsEco(systems.thermostats));
   const [locked, setLocked] = React.useState((systems.locks ? lockStatus(systems.locks) : undefined));
-  const [garages, setGarages] = React.useState((/*systems.garages ? systems.garages :*/ undefined));
+  const [garages, setGarages] = React.useState((systems.garages ? systems.garages : undefined));
 
   const errorAlert = (msg) => {
     return <Alert severity="error">{msg}</Alert>
@@ -202,9 +202,23 @@ export default function System(props) {
 
       if (garage.id === id) {
         console.log('updating garage ' + id);
-        if (garage.status) {
-          garage.status.open = status;
-        }
+
+        setInProgress(true);
+
+        ServerApi.setGarageOpen(id, (status) ? 1 : 0)
+          .then((result) => {
+            console.log('new state is: ', result.open);
+            setErrorMsg(undefined);
+            garage.status.open = result.open;
+            setInProgress(false);
+          })
+          .catch((e) => {
+            console.log('error! setting garage back to ' + !status);
+            setErrorMsg('Failed to change garage setting');
+            garage.status.open = !status;
+            setInProgress(false);
+          });
+
       }
 
       update.push(garage);
@@ -238,7 +252,7 @@ export default function System(props) {
             Garages
             
         {garages.map((device, index) => (
-            <Toggle id={device.id} name={device.name} checked={(device.status) ? device.status.open : false} onlabel='Open' offlabel='Closed' onChange={garageChanged} />
+            <Toggle key={index} id={device.id} name={device.name} checked={(device.status && device.status.open) ? true : false} onlabel='Open' offlabel='Closed' onChange={garageChanged} />
         ))}
           </Typography>
           </CardContent>
@@ -268,12 +282,12 @@ export default function System(props) {
 
           {systems.locks && lockWidget()}
 
-
         </CardContent>
       </Card>
       </Grid>
 
-      {garages && garageWidget()}
+      {systems.garages && garageWidget()}
+
 
   </Grid>
   );

@@ -6,6 +6,7 @@ const FileDB = require('./db/filedb');
 const Blink = require('./iot/lib/blink');
 const Nest = require('./iot/lib/nest');
 const SmartThings = require('./iot/lib/smartthings');
+const Meross = require('./iot/lib/merossgaragedoor');
 
 const isProduction = function () {
     return false;
@@ -34,6 +35,11 @@ const config = {
 
     smartthings: {
         accessToken: process.env.SMARTTHINGS_ACCESS_TOKEN
+    },
+
+    meross: {
+        email: process.env.MEROSS_EMAIL,
+        password: process.env.MEROSS_PASSWORD
     },
 
     file: {
@@ -103,6 +109,14 @@ module.exports = {
         const cfg = config.smartthings;
 
         const system = new SmartThings(cfg.accessToken);
+
+        return system;
+    },
+
+    loadMeross: function () {
+        const cfg = config.meross;
+
+        const system = new Meross(cfg.email, cfg.password);
 
         return system;
     }

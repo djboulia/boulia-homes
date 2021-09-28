@@ -71,7 +71,7 @@ export default function HomeTabs(props) {
           indicatorColor="primary"
           textColor="primary"
           variant="fullWidth"
-          aria-label="full width tabs example"
+          aria-label="full width tabs"
         >
           {homes.map((home, index) => (
             <Tab key={index} label={home.name} {...a11yProps(index)} />
