@@ -3,8 +3,6 @@ import { makeStyles } from '@material-ui/styles';
 import Accordion from '@material-ui/core/Accordion';
 import AccordionDetails from '@material-ui/core/AccordionDetails';
 import AccordionSummary from '@material-ui/core/AccordionSummary';
-import Typography from '@material-ui/core/Typography';
-import HomeIcon from '@material-ui/icons/Home';
 import System from './cards/System';
 
 const useStyles = makeStyles(theme => ({
@@ -37,10 +35,6 @@ export default function SystemPanel(props) {
   return (
     <div className={classes.root}>
       <Accordion className={classes.accordion} expanded={true}>
-        <AccordionSummary className={classes.accordion}>
-          <HomeIcon className={classes.icon} color='primary' />
-          <Typography className={classes.heading}>System Summary</Typography>
-        </AccordionSummary>
         <AccordionDetails className={classes.accordion}>
               <System name={home.name} id={home._id} systems={systems} />
         </AccordionDetails>

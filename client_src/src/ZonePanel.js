@@ -14,6 +14,13 @@ const useStyles = makeStyles(theme => ({
   root: {
     width: '100%',
   },
+
+  accordionHeader: {
+    fontSize: 14,
+    backgroundColor: theme.palette.grey[900],
+    marginBottom: theme.spacing(1)/2,
+  },
+
   icon: {
     fontSize: theme.typography.pxToRem(22.5),
     flexBasis: '10%',
@@ -52,8 +59,7 @@ export default function ZonePanel(props) {
   return (
     <div className={classes.root}>
       <Accordion expanded={expanded === 'panel1'} onChange={handleChange('panel1')}>
-        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-          <RoomIcon className={classes.icon} color='primary' />
+        <AccordionSummary className={classes.accordionHeader} expandIcon={<ExpandMoreIcon />}>
           <Typography className={classes.heading}>{zone.name}</Typography>
         </AccordionSummary>
         <AccordionDetails>

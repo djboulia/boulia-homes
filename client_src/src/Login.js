@@ -23,7 +23,7 @@ export default function Login(props) {
 
   const loginDisabled = username === "" || password === "";
 
-  const LOGOUT_DURATION = 30 * 60 * 1000; // 30 minutes
+  const LOGOUT_DURATION = 5 * 60 * 1000; // 5 minutes
 
   let logoutTimeout = null;
 

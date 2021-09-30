@@ -6,28 +6,18 @@ import Typography from '@material-ui/core/Typography';
 import { LinearProgress } from '@material-ui/core';
 import Alert from '@material-ui/lab/Alert';
 import Toggle from './components/Toggle';
-import ToggleIcon from './components/ToggleIcon';
+import CardHeader from './components/CardHeader';
 import Grid from '@material-ui/core/Grid';
 import ServerApi from '../server/ServerApi';
 
-const useStyles = makeStyles({
+const useStyles = makeStyles((theme) => ({
   root: {
     width: '100%',
   },
   title: {
     fontSize: 14,
   },
-  headerLabel: {
-    fontSize: 14,
-    backgroundColor: 'rgb(0,0,0)',
-    paddingLeft: '20px',
-    paddingRight: '20px',
-    paddingTop: '5px',
-    paddingBottom: '5px',
-    marginLeft: '-20px',
-    marginRight: '-20px',
-  },
-});
+}));
 
 const camerasArmed = function (cameras) {
   let armed = true;
@@ -259,9 +249,9 @@ export default function System(props) {
       <Grid item xs={12} key={'garages'}>
         <Card className={classes.root}>
           <CardContent>
-            <Typography className={classes.headerLabel} component="div">
+            <CardHeader>
               Garages
-            </Typography>
+            </CardHeader>
             <Typography className={classes.title} gutterBottom>
               {garages.map((device, index) => (
                 <Toggle key={index} id={device.id} name={device.name} checked={(device.status && !device.status.open) ? true : false} onlabel='Closed' offlabel='Open' onChange={garageChanged} />
@@ -284,6 +274,10 @@ export default function System(props) {
             {inProgress && progressIndicator()}
 
             {!inProgress && msg}
+
+            <CardHeader>
+              System Summary
+            </CardHeader>
 
             <Typography className={classes.title} gutterBottom>
               <Toggle name='Cameras' checked={armed} onlabel='Armed' offlabel='Disarmed' onChange={cameraChanged} />

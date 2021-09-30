@@ -10,6 +10,7 @@ import Alert from '@material-ui/lab/Alert';
 import HomeAppBar from './HomeAppBar';
 import HomeTabs from './HomeTabs';
 import ServerApi from './server/ServerApi';
+import theme from './theme';
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -30,6 +31,7 @@ export default function Main() {
     const [name, setName] = React.useState("");
     const [homes, setHomes] = React.useState([]);
 
+    // console.log('theme', theme);
     const classes = useStyles();
 
     React.useEffect(() => {
