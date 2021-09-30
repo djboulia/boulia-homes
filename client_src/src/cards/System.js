@@ -6,6 +6,7 @@ import Typography from '@material-ui/core/Typography';
 import { LinearProgress } from '@material-ui/core';
 import Alert from '@material-ui/lab/Alert';
 import Toggle from './components/Toggle';
+import ToggleIcon from './components/ToggleIcon';
 import Grid from '@material-ui/core/Grid';
 import ServerApi from '../server/ServerApi';
 
@@ -15,6 +16,16 @@ const useStyles = makeStyles({
   },
   title: {
     fontSize: 14,
+  },
+  headerLabel: {
+    fontSize: 14,
+    backgroundColor: 'rgb(0,0,0)',
+    paddingLeft: '20px',
+    paddingRight: '20px',
+    paddingTop: '5px',
+    paddingBottom: '5px',
+    marginLeft: '-20px',
+    marginRight: '-20px',
   },
 });
 
@@ -197,7 +208,7 @@ export default function System(props) {
     const status = e.checked;
 
     const update = [];
-    for (let i=0; i<garages.length; i++) {
+    for (let i = 0; i < garages.length; i++) {
       const garage = garages[i];
 
       if (garage.id === id) {
@@ -205,7 +216,7 @@ export default function System(props) {
 
         setInProgress(true);
 
-        ServerApi.setGarageOpen(id, (status) ? 1 : 0)
+        ServerApi.setGarageOpen(id, (status) ? 0 : 1)
           .then((result) => {
             console.log('new state is: ', result.open);
             setErrorMsg(undefined);
@@ -246,17 +257,18 @@ export default function System(props) {
   const garageWidget = function () {
     return (
       <Grid item xs={12} key={'garages'}>
-      <Card className={classes.root}>
-        <CardContent>
-          <Typography className={classes.title} gutterBottom>
-            Garages
-            
-        {garages.map((device, index) => (
-            <Toggle key={index} id={device.id} name={device.name} checked={(device.status && device.status.open) ? true : false} onlabel='Open' offlabel='Closed' onChange={garageChanged} />
-        ))}
-          </Typography>
+        <Card className={classes.root}>
+          <CardContent>
+            <Typography className={classes.headerLabel} component="div">
+              Garages
+            </Typography>
+            <Typography className={classes.title} gutterBottom>
+              {garages.map((device, index) => (
+                <Toggle key={index} id={device.id} name={device.name} checked={(device.status && !device.status.open) ? true : false} onlabel='Closed' offlabel='Open' onChange={garageChanged} />
+              ))}
+            </Typography>
           </CardContent>
-      </Card>
+        </Card>
       </Grid>
     )
   }
@@ -265,30 +277,30 @@ export default function System(props) {
 
   return (
     <Grid container spacing={1}>
-    <Grid item xs={12} key={name}>
-      <Card className={classes.root}>
-        <CardContent>
+      <Grid item xs={12} key={name}>
+        <Card className={classes.root}>
+          <CardContent>
 
-          {inProgress && progressIndicator()}
+            {inProgress && progressIndicator()}
 
-          {!inProgress && msg}
+            {!inProgress && msg}
 
-          <Typography className={classes.title} gutterBottom>
-            <Toggle name='Cameras' checked={armed} onlabel='Armed' offlabel='Disarmed' onChange={cameraChanged} />
-          </Typography>
-          <Typography className={classes.title} gutterBottom>
-            <Toggle name='Thermostats' checked={away} onlabel='Away' offlabel='Home' onChange={thermostatChanged} />
-          </Typography>
+            <Typography className={classes.title} gutterBottom>
+              <Toggle name='Cameras' checked={armed} onlabel='Armed' offlabel='Disarmed' onChange={cameraChanged} />
+            </Typography>
+            <Typography className={classes.title} gutterBottom>
+              <Toggle name='Thermostats' checked={away} onlabel='Away' offlabel='Home' onChange={thermostatChanged} />
+            </Typography>
 
-          {systems.locks && lockWidget()}
+            {systems.locks && lockWidget()}
 
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
       </Grid>
 
       {systems.garages && garageWidget()}
 
 
-  </Grid>
+    </Grid>
   );
 }
