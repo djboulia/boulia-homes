@@ -23,10 +23,47 @@ export default function Login(props) {
 
   const loginDisabled = username === "" || password === "";
 
+  const LOGOUT_DURATION = 30 * 60 * 1000; // 30 minutes
+
+  let logoutTimeout = null;
+
+  const logout = function() {
+    console.log("timer expired... logging out");
+
+    ServerApi.logout()
+    .then((result) => {
+      console.log("logout complete, redirecting to /login page");
+
+      window.location.reload();
+    })
+    .catch((e) => {
+      console.log('Error ' + e.message);
+
+      window.location.reload();
+    })
+  }
+
+  const cancelTimer = function() {
+    if (logoutTimeout) clearTimeout(logoutTimeout);
+  }
+
+  const startTimer = function() {
+    logoutTimeout =  setTimeout(logout, LOGOUT_DURATION)
+  }
+
+  const resetTimer = function() {
+    cancelTimer();
+    startTimer();
+  }
+
   const login = function () {
     ServerApi.login(username, password)
       .then((result) => {
         setRedirectToReferrer(true);
+
+        // after successful login, set a timer to auto-logout
+        // after a set interval
+        resetTimer();
       })
       .catch((e) => {
         console.log('Error ' + e.message);
