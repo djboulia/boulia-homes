@@ -1,5 +1,5 @@
 
-const Devices = function (camera, thermostat, lock, garage) {
+const Devices = function (camera, thermostat, lock, garage, water) {
 
     this.init = function () {
         const promises = [];
@@ -8,16 +8,22 @@ const Devices = function (camera, thermostat, lock, garage) {
 
         promises.push(camera.init());
         promises.push(thermostat.init());
+        promises.push(garage.init());
+        promises.push(water.init());
 
         return Promise.all(promises);
     }
 
-    this.getThermostats = function() {
+    this.getThermostats = function () {
         return thermostat;
     }
 
-    this.getGarages = function() {
+    this.getGarages = function () {
         return garage;
+    }
+
+    this.getWaterValves = function () {
+        return water;
     }
 
     const updateSystems = function (systems) {
@@ -30,11 +36,13 @@ const Devices = function (camera, thermostat, lock, garage) {
             const thermostats = systems.thermostats || [];
             const locks = systems.locks || [];
             const garages = systems.garages || [];
+            const watervalves = systems.watervalves || [];
 
             promises.push(camera.updateSystem(cameras));
             promises.push(thermostat.updateSystem(thermostats));
             promises.push(lock.updateSystem(locks));
             promises.push(garage.updateSystem(garages));
+            promises.push(water.updateSystem(watervalves));
 
             Promise.all(promises)
                 .then((results) => {
@@ -170,6 +178,36 @@ const Devices = function (camera, thermostat, lock, garage) {
                     }
 
                     resolve(locked);
+                })
+                .catch((e) => {
+                    reject(e);
+                })
+        })
+    }
+
+    /**
+     * Set all locks in this home to specified status
+     * 
+     * @param {Object} home 
+     * @param {Boolean} closed
+     */
+    this.shutOffWater = function (home, closed) {
+        return new Promise((resolve, reject) => {
+
+            const devices = home.systems.watervalves;
+
+            water.closeAll(devices, closed)
+                .then((results) => {
+                    console.log('system watervalve complete');
+
+                    for (let i = 0; i < results.length; i++) {
+                        const result = results[i];
+                        if (result != closed) {
+                            console.log('water not set to ' + ((closed) ? 'closed' : 'open'));
+                        }
+                    }
+
+                    resolve(closed);
                 })
                 .catch((e) => {
                     reject(e);

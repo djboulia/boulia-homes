@@ -14,6 +14,7 @@ const Camera = require('./iot/camera');
 const Lock = require('./iot/lock');
 const Garage = require('./iot/garage');
 const Thermostat = require('./iot/thermostat');
+const Water = require('./iot/water');
 
 require("dotenv").config();
 
@@ -24,12 +25,14 @@ const Blink = Config.loadBlink();
 const Nest = Config.loadNest();
 const SmartThings = Config.loadSmartThings();
 const Meross = Config.loadMeross();
+const Flo = Config.loadFlo();
 
 const camera = new Camera(Blink);
 const thermostat = new Thermostat(Nest);
 const lock = new Lock(SmartThings);
 const garage = new Garage(Meross);
-const devices = new Devices(camera, thermostat, lock, garage);
+const water = new Water(Flo);
+const devices = new Devices(camera, thermostat, lock, garage, water);
 
 const app = express();
 
@@ -218,7 +221,7 @@ app.post('/api/user/me/homes/:id/systems/camera/arm', function (req, res) {
                 })
                 .catch((e) => {
                     console.log('error: ', e);
-                    jsonError(res, 404, 'Error arming cameras.');
+                    jsonError(res, 404, 'Error setting garage state.');
                 })
         })
         .catch((e) => {
@@ -226,7 +229,6 @@ app.post('/api/user/me/homes/:id/systems/camera/arm', function (req, res) {
             jsonError(res, 404, 'Error retrieving homes.');
         })
 });
-
 
 /**
  * turn ECO on/off for all thermostats in a home
@@ -442,7 +444,60 @@ app.post('/api/user/me/homes/:id/systems/locks/lock', function (req, res) {
                 })
                 .catch((e) => {
                     console.log('error: ', e);
-                    jsonError(res, 404, 'Error arming cameras.');
+                    jsonError(res, 404, 'Error locking doors.');
+                })
+        })
+        .catch((e) => {
+            console.log('error: ', e);
+            jsonError(res, 404, 'Error retrieving homes.');
+        })
+});
+
+// close or open all water valves in the home
+app.post('/api/user/me/homes/:id/systems/watervalves/close', function (req, res) {
+    console.log("got body: ", req.body);
+    const id = req.params.id;
+
+    const user = req.session.user;
+
+    if (!user) {
+        jsonError(res, 401, 'Please log in.');
+        return;
+    }
+
+    const body = req.body;
+
+    devices.init()
+        .then(() => {
+            return Homes.getIds(user.homes)
+        })
+        .then((result) => {
+            // get current status for all devices
+            let promise = undefined;
+
+            for (let i = 0; i < result.length; i++) {
+                const home = result[i];
+
+                if (home._id === id) {
+                    promise = devices.shutOffWater(home, body.closed);
+                    break;
+                }
+            }
+
+            if (!promise) {
+                jsonError(res, 404, 'Home id ' + id + ' not found.');
+                return;
+            }
+
+            promise
+                .then((result) => {
+                    jsonResponse(res, {
+                        closed: result
+                    });
+                })
+                .catch((e) => {
+                    console.log('error: ', e);
+                    jsonError(res, 404, 'Error shutting off water.');
                 })
         })
         .catch((e) => {

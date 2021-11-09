@@ -18,9 +18,10 @@
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "express-session": "^1.17.1",
+    "homebridge-flobymoen": "^1.0.3",
+    "meross-cloud": "^1.4.0",
     "node-blink-security": "file:./local_modules/node-blink-security",
     "path": "^0.12.7",
-    "smartthings-node": "0.0.4",
-    "meross-cloud": "^1.4.0"
+    "smartthings-node": "0.0.4"
   }
 }

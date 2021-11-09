@@ -1,8 +1,8 @@
 
-const Garage = function (meross) {
+const Water = function (flo) {
 
     this.init = function() {
-        return meross.init();
+        return flo.init();
     }
 
     this.updateSystem = function (systems) {
@@ -24,7 +24,7 @@ const Garage = function (meross) {
                         const status = results[j];
                         device.status = status;
 
-                        console.log('garage system updated: ', device);
+                        console.log('watervalve system updated: ', device);
                     }
 
                     resolve(systems);
@@ -45,7 +45,7 @@ const Garage = function (meross) {
             const systemId = device.id;
             console.log('system ', systemId);
 
-            meross.isOpen(systemId)
+            flo.isValveOpen(systemId)
                 .then((result) => {
                     status.open = result;
                     resolve(status);
@@ -57,16 +57,16 @@ const Garage = function (meross) {
         });
     }
 
-    this.openAll = function (devices, open) {
+    this.closeAll = function (devices, closed) {
         const self = this;
 
         return new Promise((resolve, reject) => {
             const promises = [];
             for (let j = 0; j < devices.length; j++) {
                 const device = devices[j];
-                console.log('openAll ', device);
+                console.log('closeAll ', device);
 
-                promises.push(self.open(device.id, open));
+                promises.push(self.close(device.id, closed));
             }
 
             Promise.all(promises)
@@ -74,10 +74,10 @@ const Garage = function (meross) {
                     for (let j = 0; j < results.length; j++) {
                         const device = devices[j];
 
-                        console.log('garage updated: ', device);
+                        console.log('water updated: ', device);
                     }
 
-                    resolve(open);
+                    resolve(closed);
                 })
                 .catch((e) => {
                     reject(e);
@@ -85,12 +85,14 @@ const Garage = function (meross) {
         })
     }
 
-    this.open = function (deviceId, open) {
+    this.close = function (deviceId, closed) {
         return new Promise((resolve, reject) => {
-
-            meross.open(deviceId, open)
-                .then((result) => {
-                    resolve(result);
+            flo.setValve(deviceId, !closed)
+                .then(() => {
+                    // flo doesn't return the statue, but we
+                    // assume a positive result means it has been
+                    // set to the new state
+                    resolve(closed);
                 })
                 .catch((error) => {
                     console.log(error);
@@ -100,4 +102,4 @@ const Garage = function (meross) {
     }
 }
 
-module.exports = Garage;
+module.exports = Water;

@@ -7,6 +7,7 @@ const Blink = require('./iot/lib/blink');
 const Nest = require('./iot/lib/nest');
 const SmartThings = require('./iot/lib/smartthings');
 const Meross = require('./iot/lib/merossgaragedoor');
+const FloWaterValve = require("./iot/lib/flowatervalve");
 
 const isProduction = function () {
     return false;
@@ -40,6 +41,11 @@ const config = {
     meross: {
         email: process.env.MEROSS_EMAIL,
         password: process.env.MEROSS_PASSWORD
+    },
+
+    flo: {
+        email: process.env.FLO_EMAIL,
+        password: process.env.FLO_PASSWORD
     },
 
     file: {
@@ -117,6 +123,14 @@ module.exports = {
         const cfg = config.meross;
 
         const system = new Meross(cfg.email, cfg.password);
+
+        return system;
+    },
+
+    loadFlo: function () {
+        const cfg = config.flo;
+
+        const system = new FloWaterValve(cfg.email, cfg.password);
 
         return system;
     }

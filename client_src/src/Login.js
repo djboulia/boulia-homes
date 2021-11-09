@@ -24,9 +24,8 @@ export default function Login(props) {
   const loginDisabled = username === "" || password === "";
 
   const LOGOUT_DURATION = 5 * 60 * 1000; // 5 minutes
-
   let logoutTimeout = null;
-
+  
   const logout = function() {
     console.log("timer expired... logging out");
 

@@ -101,6 +101,26 @@ const lockStatus = function (locks) {
   return locked;
 }
 
+const waterStatus = function (watervalves) {
+  let closed = true;
+
+  for (let i = 0; i < watervalves.length; i++) {
+    const valve = watervalves[i];
+    if (valve.status) {
+
+      // if any of the valves are open, we reflect the system as open
+      if (valve.status.open) {
+        closed = false;
+      }
+    } else {
+      closed = false;
+    }
+  }
+
+  return closed;
+}
+
+
 const updateLocksStatus = function (locks, locked) {
   for (let i = 0; i < locks.length; i++) {
     const lock = locks[i];
@@ -114,9 +134,20 @@ const updateLocksStatus = function (locks, locked) {
   return locked;
 }
 
+const updateWaterStatus = function (watervalves, closed) {
+  for (let i = 0; i < watervalves.length; i++) {
+    const valve = watervalves[i];
+    if (valve.status) {
+      valve.status.open = !closed;
+    }
+  }
+
+  return closed;
+}
+
 export default function System(props) {
   const classes = useStyles();
-  const id = props.id;
+  const homeId = props.id;
   const name = props.name;
   const systems = props.systems;
   console.log('systems ', systems);
@@ -127,6 +158,7 @@ export default function System(props) {
   const [away, setAway] = React.useState(thermostatsEco(systems.thermostats));
   const [locked, setLocked] = React.useState((systems.locks ? lockStatus(systems.locks) : undefined));
   const [garages, setGarages] = React.useState((systems.garages ? systems.garages : undefined));
+  const [waterClosed, setWaterClosed] = React.useState((systems.watervalves ? waterStatus(systems.watervalves) : undefined));
 
   const errorAlert = (msg) => {
     return <Alert severity="error">{msg}</Alert>
@@ -137,7 +169,7 @@ export default function System(props) {
     const status = e.checked;
     setInProgress(true);
 
-    ServerApi.armCameraSystem(id, e.checked)
+    ServerApi.armCameraSystem(homeId, e.checked)
       .then((result) => {
         console.log('new state is: ', result);
         setErrorMsg(undefined);
@@ -157,7 +189,7 @@ export default function System(props) {
     const status = e.checked;
     setInProgress(true);
 
-    ServerApi.ecoThermostatSystem(id, e.checked)
+    ServerApi.ecoThermostatSystem(homeId, e.checked)
       .then((result) => {
         console.log('new state is: ', result);
         setErrorMsg(undefined);
@@ -177,7 +209,7 @@ export default function System(props) {
     const status = e.checked;
     setInProgress(true);
 
-    ServerApi.lockSystem(id, e.checked)
+    ServerApi.lockSystem(homeId, e.checked)
       .then((result) => {
         console.log('new state is: ', result);
         setErrorMsg(undefined);
@@ -187,6 +219,27 @@ export default function System(props) {
       .catch((e) => {
         console.log('error! setting lock back to ' + !status);
         setErrorMsg('Failed to change lock setting');
+        setLocked(!status);
+        setInProgress(false);
+      });
+  }
+
+  const valveChanged = function (e) {
+    console.log('valve changed ', e);
+    const status = e.checked;
+    setInProgress(true);
+
+    ServerApi.closeWaterValves(homeId, e.checked)
+      .then((result) => {
+        console.log('new state is: ', result);
+        setErrorMsg(undefined);
+        setWaterClosed(updateWaterStatus(systems.watervalves, result.closed));
+        setInProgress(false);
+      })
+      .catch((e) => {
+        console.log('error! setting water back to ' + !status);
+        console.log('error! ' , e);
+        setErrorMsg('Failed to change water setting');
         setLocked(!status);
         setInProgress(false);
       });
@@ -242,6 +295,16 @@ export default function System(props) {
     )
   }
 
+  console.log('systems.watervalves ', systems.watervalves);
+
+  const valveWidget = function () {
+    return (
+      <Typography className={classes.title} gutterBottom>
+        <Toggle name='Water' checked={waterClosed} onlabel='Off' offlabel='On' onChange={valveChanged} />
+      </Typography>
+    )
+  }
+
   console.log('systems.garages ', systems.garages);
 
   const garageWidget = function () {
@@ -287,6 +350,8 @@ export default function System(props) {
             </Typography>
 
             {systems.locks && lockWidget()}
+
+            {systems.watervalves && valveWidget()}
 
           </CardContent>
         </Card>

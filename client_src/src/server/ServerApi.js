@@ -306,6 +306,32 @@ const ServerApi = {
                 })
         })
     },
+
+    closeWaterValves(homeId, closed) {
+
+        return new Promise((resolve, reject) => {
+
+            axios
+                .post('/api/user/me/homes/' + homeId + '/systems/watervalves/close', { closed: closed })
+                .then(res => {
+                    console.log(res.data);
+
+                    const result = res.data;
+                    if (!result.error) {
+                        resolve(result);
+                    } else {
+                        reject(result.error);
+                    }
+                })
+                .catch((e) => {
+                    console.log('error ', JSON.stringify(e));
+                    reject({
+                        code: 500,
+                        message: e.message
+                    });
+                })
+        })
+    },
 };
 
 export default ServerApi;
