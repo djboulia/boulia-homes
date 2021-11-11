@@ -89,7 +89,7 @@ const Water = function (flo) {
         return new Promise((resolve, reject) => {
             flo.setValve(deviceId, !closed)
                 .then(() => {
-                    // flo doesn't return the statue, but we
+                    // flo doesn't return the state, but we
                     // assume a positive result means it has been
                     // set to the new state
                     resolve(closed);

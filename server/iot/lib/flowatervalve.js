@@ -20,7 +20,21 @@ const FloWaterValve = function (email, password) {
     const flo = new Flo(logger, config, undefined, console.debug);
 
     this.init = function () {
-        return flo.init();
+        return new Promise((resolve, reject) => {
+            flo.init()
+                .then((result) => {
+                    // only call discoverDevices() once... multiple
+                    // calls will continue adding to the flo_devices array
+                    return flo.discoverDevices();
+                })
+                .then((result) => {
+                    // console.log('discovered devices ', flo.flo_devices)
+                    resolve(true);
+                })
+                .catch((e) => {
+                    reject(e);
+                })
+        });
     }
 
     this.uninit = function () {
@@ -31,8 +45,8 @@ const FloWaterValve = function (email, password) {
 
     }
 
-    const findDevice = function(id) {
-        for (let i=0; i<flo.flo_devices.length; i++) {
+    const findDevice = function (id) {
+        for (let i = 0; i < flo.flo_devices.length; i++) {
             const device = flo.flo_devices[i];
 
             if (device.deviceid === id) {
@@ -45,24 +59,23 @@ const FloWaterValve = function (email, password) {
 
     this.isValveOpen = function (id) {
         return new Promise((resolve, reject) => {
-            flo.discoverDevices()
-            .then((result) => {
-                const device = findDevice(id);
+            const device = findDevice(id);
+            
+            if (device === undefined) {
+                reject('device id ' + id + ' not found!');
+                return;
+            }
 
-                if (device === undefined) {
-                    reject('device id ' + id + ' not found!');
-                    return;
-                }
+            flo.refreshDevice(device)
+                .then((result) => {
 
-                // console.log('discovered devices ', flo.flo_devices)
-
-                console.log("waterValve ", device);
-                resolve((device.valveCurrentState === 'closed') ? false : true);
-            })
-            .catch((err) => {
-                console.log("error: ", err)
-                reject(err);
-            })
+                    console.log("waterValve ", device);
+                    resolve((device.valveCurrentState === 'closed') ? false : true);
+                })
+                .catch((err) => {
+                    console.log("error: ", err)
+                    reject(err);
+                })
         });
     }
 
