@@ -173,7 +173,7 @@ const Devices = function (camera, thermostat, lock, garage, water) {
                     for (let i = 0; i < results.length; i++) {
                         const result = results[i];
                         if (result != locked) {
-                            console.log('thermostat not set to ' + ((locked) ? 'locked' : 'unlocked'));
+                            console.log('lock not set to ' + ((locked) ? 'locked' : 'unlocked'));
                         }
                     }
 
