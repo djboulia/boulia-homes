@@ -27,29 +27,39 @@ const MerossGarageDoor = function (email, password) {
         console.log('meross: ' + deviceId + ' data: ' + JSON.stringify(payload));
     });
     
+    this.initialized = false;
+
     this.init = function () {
-        console.log('meross calling init');
+        const self = this;
 
         return new Promise((resolve, reject) => {
 
-            meross.connect((error, deviceListLength) => {
-                if (error) {
-                    console.log(error);
-                    reject(error);
-                } else {
-                    let connectedDevices = 0;
+            if (self.initialized) {
+                console.log('meross already initialized, skipping');
+                resolve(true);
+            } else {
+                meross.connect((error, deviceListLength) => {
+                    if (error) {
+                        console.log(error);
+                        reject(error);
+                    } else {
+                        let connectedDevices = 0;
+    
+                        meross.on('connected', (deviceId) => {
+                            console.log(deviceId + ' connected');
+                            connectedDevices++;
+    
+                            if (connectedDevices === deviceListLength) {
+                                console.log('all devices connected');
 
-                    meross.on('connected', (deviceId) => {
-                        console.log(deviceId + ' connected');
-                        connectedDevices++;
+                                self.initialized = true;
 
-                        if (connectedDevices === deviceListLength) {
-                            console.log('all devices connected');
-                            resolve(deviceListLength);
-                        }
-                    });
-                }
-            })
+                                resolve(deviceListLength);
+                            }
+                        });
+                    }
+                })
+            }
         });
     }
 
@@ -73,15 +83,20 @@ const MerossGarageDoor = function (email, password) {
             }
 
             device.getSystemAllData((err, res) => {
-                const result = res.all.digest.garageDoor;
-                console.log('garageDoor: ', result);
-
-                // first entry is our door status
-                resolve(result[0].open);
+                if (err) {
+                    console.log('getSystemAllData error: ', err);
+                    reject(err);
+                } else {
+                    const result = res.all.digest.garageDoor;
+                    console.log('garageDoor: ', result);
+    
+                    // first entry is our door status
+                    resolve(result[0].open);    
+                }
             });
         });
     }
-
+    
     this.open = function (id, open) {
         return new Promise((resolve, reject) => {
             const device = meross.getDevice(id);
