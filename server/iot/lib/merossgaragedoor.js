@@ -38,10 +38,14 @@ const MerossGarageDoor = function (email, password) {
                 console.log('meross already initialized, skipping');
                 resolve(true);
             } else {
+
                 meross.connect((error, deviceListLength) => {
                     if (error) {
+                        // [06/13/2022] start eating errors logging in
+                        //              so we don't prevent everything else
+                        //              from loading
                         console.log(error);
-                        reject(error);
+                        resolve(0);
                     } else {
                         let connectedDevices = 0;
     
@@ -73,7 +77,14 @@ const MerossGarageDoor = function (email, password) {
     }
 
     this.isOpen = function (id) {
+        const self = this;
+
         return new Promise((resolve, reject) => {
+            if (!self.initialized) {
+                resolve(-1);
+                return;
+            }
+
             const device = meross.getDevice(id);
 
             if (!device) {
@@ -98,7 +109,14 @@ const MerossGarageDoor = function (email, password) {
     }
     
     this.open = function (id, open) {
+        const self = this;
+
         return new Promise((resolve, reject) => {
+            if (!self.initialized) {
+                resolve(-1);
+                return;
+            }
+
             const device = meross.getDevice(id);
 
             if (!device) {
