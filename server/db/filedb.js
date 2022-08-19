@@ -23,7 +23,7 @@ const fieldsMatch = function (record, fields) {
     for (var name in fields) {
         if (fields.hasOwnProperty(name)) {
             if (fields[name] != record[name]) {
-                console.log('field ' + name + ' does not match: ' + fields[name] + ', ' + record[name]);
+                // console.log('field ' + name + ' does not match: ' + fields[name] + ', ' + record[name]);
                 return false;
             }
         }
