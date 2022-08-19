@@ -66,7 +66,7 @@ const ServerApi = {
                 }
 
             }).catch((e) => {
-                console.log("error: " + JSON.stringify(e.message));
+                console.log("error: " + JSON.stringify(e));
                 reject({
                     code: 500,
                     message: e.message
@@ -112,13 +112,20 @@ const ServerApi = {
                     if (!result.error) {
                         resolve(result.homes);
                     } else {
+                        console.log('homes other error: ', result.error);
                         reject(result.error);
                     }
                 })
                 .catch((e) => {
-                    console.log('error ', JSON.stringify(e));
+                    console.log('homes catch error ', e.message);
+
+                    let code = 500;
+                    if (e.message.endsWith('status code 401')) {
+                        code = 401;
+                    }
+
                     reject({
-                        code: 500,
+                        code: code,
                         message: e.message
                     });
                 })

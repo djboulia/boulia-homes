@@ -1,5 +1,77 @@
+const Blink = require('./lib/blink');
+const Nest = require('./lib/nest');
+const SmartThings = require('./lib/smartthings');
+const Meross = require('./lib/merossgaragedoor');
+const FloWaterValve = require("./lib/flowatervalve");
 
-const Devices = function (camera, thermostat, lock, garage, water) {
+const Camera = require('./camera');
+const Lock = require('./lock');
+const Garage = require('./garage');
+const Thermostat = require('./thermostat');
+const Water = require('./water');
+
+const loadBlink = function (cfg) {
+
+    const blink = new Blink(
+        cfg.email,
+        cfg.password,
+        cfg.app,
+        cfg.device
+    );
+
+    return blink;
+};
+
+const loadNest = function (cfg) {
+
+    const nest = new Nest(
+        cfg.projectId,
+        cfg.clientId,
+        cfg.clientSecret,
+        cfg.refreshToken
+    );
+
+    return nest;
+};
+
+const loadSmartThings = function (cfg) {
+
+    const system = new SmartThings(cfg.accessToken);
+
+    return system;
+};
+
+const loadMeross = function (cfg) {
+
+    const system = new Meross(cfg.email, cfg.password);
+
+    return system;
+};
+
+const loadFlo = function (cfg) {
+
+    const system = new FloWaterValve(cfg.email, cfg.password);
+
+    return system;
+};
+
+const Devices = function (config) {
+
+    // configure the specific IoT services
+    const blink = loadBlink(config.getBlink());
+    const nest = loadNest(config.getNest());
+    const smartThings = loadSmartThings(config.getSmartThings());
+    const meross = loadMeross(config.getMeross());
+    const flo = loadFlo(config.getFlo());
+
+    // abstract the different operations from the specific
+    // service handlers so we can change vendors/implementations
+    // without impacting all of the api code
+    const camera = new Camera(blink);
+    const thermostat = new Thermostat(nest);
+    const lock = new Lock(smartThings);
+    const garage = new Garage(meross);
+    const water = new Water(flo);
 
     this.init = function () {
         const promises = [];
@@ -186,7 +258,7 @@ const Devices = function (camera, thermostat, lock, garage, water) {
     }
 
     /**
-     * Set all locks in this home to specified status
+     * Set all water valves in this home to specified status
      * 
      * @param {Object} home 
      * @param {Boolean} closed

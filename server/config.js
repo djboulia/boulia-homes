@@ -1,23 +1,22 @@
-require("dotenv").config();
 
-const Cloudant = require('@cloudant/cloudant');
-const CloudantDB = require('./db/cloudantdb');
-const FileDB = require('./db/filedb');
-const Blink = require('./iot/lib/blink');
-const Nest = require('./iot/lib/nest');
-const SmartThings = require('./iot/lib/smartthings');
-const Meross = require('./iot/lib/merossgaragedoor');
-const FloWaterValve = require("./iot/lib/flowatervalve");
-
-const isProduction = function () {
-    return false;
-}
+/**
+ * hold all of our configuration data for this app
+ */
 
 const config = {
     cloudant: {
         me: process.env.CLOUDANT_USERNAME,
         password: process.env.CLOUDANT_PASSWORD,
         db: process.env.CLOUDANT_DB
+    },
+
+    file: {
+        path: process.env.TEST_DB_PATH
+    },
+
+    models: {
+        'user': './models/users',
+        'home': './models/homes',
     },
 
     blink: {
@@ -46,95 +45,47 @@ const config = {
     flo: {
         email: process.env.FLO_EMAIL,
         password: process.env.FLO_PASSWORD
-    },
-
-    file: {
-        path: process.env.TEST_DB_PATH
-    },
-
-    models: {
-        'user': './models/users',
-        'home': './models/homes',
     }
 }
 
-let cloudant = undefined;
-
-const cloudantDB = function (config, modelName) {
-    if (!cloudant) {
-        cloudant = Cloudant({ account: config.me, password: config.password });
-    }
-
-    return new CloudantDB(cloudant, config.db, modelName);
-}
-
-const fileDB = function (config, modelName) {
-    return new FileDB(config.path, modelName);
-}
-
-const DBLoader = function (modelName, modelPath) {
-    const db = (isProduction()) ? cloudantDB(config.cloudant, modelName) : fileDB(config.file, modelName);
-    const module = require(modelPath);
-    return new module(db);
-}
 
 module.exports = {
-    loadModel: function (modelName) {
+    getModel: function (modelName) {
         const modelPath = config.models[modelName];
         if (!modelPath) {
             throw 'Model ' + modelName + ' not found!';
         }
 
-        return DBLoader(modelName, modelPath);
+        return modelPath;
     },
 
-    loadBlink: function () {
-        const blink = new Blink(
-            config.blink.email,
-            config.blink.password,
-            config.blink.app,
-            config.blink.device
-        );
-
-        return blink;
+    getCloudant: function () {
+        return config.cloudant;
     },
 
-    loadNest: function () {
-        const cfg = config.nest;
-
-        const nest = new Nest(cfg.projectId,
-            cfg.clientId,
-            cfg.clientSecret,
-            cfg.refreshToken
-        );
-
-        return nest;
+    getFile: function () {
+        return config.file;
     },
 
-    loadSmartThings: function () {
-        const cfg = config.smartthings;
-
-        const system = new SmartThings(cfg.accessToken);
-
-        return system;
+    getBlink: function() {
+        return config.blink;
     },
 
-    loadMeross: function () {
-        const cfg = config.meross;
-
-        const system = new Meross(cfg.email, cfg.password);
-
-        return system;
+    getNest: function() {
+        return config.nest;
     },
 
-    loadFlo: function () {
-        const cfg = config.flo;
+    getSmartThings: function() {
+        return config.smartthings;
+    },
 
-        const system = new FloWaterValve(cfg.email, cfg.password);
+    getMeross: function() {
+        return config.meross;
+    },
 
-        return system;
+    getFlo: function() {
+        return config.flo;
     }
-
 }
 
 
