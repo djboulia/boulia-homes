@@ -209,6 +209,7 @@ const NestThermostat = function (nest, deviceId, deviceInfo) {
                     resolve(self);
                 })
                 .catch((e) => {
+                    console.log('nest command error: ', e.response);
                     reject(e);
                 })
         })
