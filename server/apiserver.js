@@ -4,8 +4,7 @@
  *
  */
 
-const ReactServer = require('./reactserver/reactserver.js');
-const ServerError = require('./reactserver/servererror');
+const ReactServer = require('@apiserver/reactserver');
 
 const Config = require('./config');
 
@@ -37,7 +36,7 @@ const ApiServer = function (reactClientDir) {
 
             const result = await Users.authenticate(userid, password)
                 .catch((err) => {
-                    throw new ServerError(401, err);
+                    throw server.serverError(401, err);
                 });
 
             session.user = result;
@@ -61,7 +60,7 @@ const ApiServer = function (reactClientDir) {
             const user = context.session.user;
 
             if (!user) {
-                throw new ServerError(401, 'Please log in.');
+                throw server.serverError(401, 'Please log in.');
             }
 
             await devices.init()
@@ -121,7 +120,7 @@ const ApiServer = function (reactClientDir) {
 
             const home = findHomeById(homes, id);
             if (!home) {
-                throw new ServerError(404, `Home id ${id} not found.`);
+                throw server.serverError(404, `Home id ${id} not found.`);
             }
 
             return home;
