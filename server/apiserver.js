@@ -49,20 +49,32 @@ const ApiServer = function (reactClientDir) {
         async function logout(context) {
             console.log("logout ");
 
-            await server.logout(context.session);
+            await server.reset(context.session);
 
             return {
                 message: 'Logged out.'
             };
         }
 
-        async function initDevices(context) {
+        /**
+         * called to validate the user is authorized
+         * to call the given API
+         * 
+         * @param {*} context 
+         */
+        async function auth(context) {
+            console.log('auth called');
+
             const user = context.session.user;
 
             if (!user) {
                 throw server.serverError(401, 'Please log in.');
             }
 
+            return true;
+        }
+
+        async function initDevices(context) {
             await devices.init()
                 .catch((err) => {
                     throw new Error('Error initializing devices.');
@@ -347,16 +359,16 @@ const ApiServer = function (reactClientDir) {
         server.method('/api/login', 'POST', login);
         server.method('/api/logout', 'POST', logout);
 
-        server.method('/api/user/me/homes', 'GET', homes);
-        server.method('/api/user/me/homes/:id/systems/camera/arm', 'POST', toggleCameras);
-        server.method('/api/user/me/homes/:id/systems/locks/lock', 'POST', toggleDoors);
-        server.method('/api/user/me/homes/:id/systems/watervalves/close', 'POST', toggleWater);
-        server.method('/api/user/me/homes/:id/systems/thermostat/eco', 'POST', ecoThermostats);
+        server.method('/api/user/me/homes', 'GET', homes, auth);
+        server.method('/api/user/me/homes/:id/systems/camera/arm', 'POST', toggleCameras, auth);
+        server.method('/api/user/me/homes/:id/systems/locks/lock', 'POST', toggleDoors, auth);
+        server.method('/api/user/me/homes/:id/systems/watervalves/close', 'POST', toggleWater, auth);
+        server.method('/api/user/me/homes/:id/systems/thermostat/eco', 'POST', ecoThermostats, auth);
 
-        server.method('/api/user/me/garages/:id/open', 'POST', toggleGarage);
-        server.method('/api/user/me/thermostats/:id/eco', 'POST', ecoThermostat);
-        server.method('/api/user/me/thermostats/:id/mode', 'POST', modeThermostat);
-        server.method('/api/user/me/thermostats/:id/temp', 'POST', tempThermostat);
+        server.method('/api/user/me/garages/:id/open', 'POST', toggleGarage, auth);
+        server.method('/api/user/me/thermostats/:id/eco', 'POST', ecoThermostat, auth);
+        server.method('/api/user/me/thermostats/:id/mode', 'POST', modeThermostat, auth);
+        server.method('/api/user/me/thermostats/:id/temp', 'POST', tempThermostat, auth);
 
         // start the server on the specified port
         server.listen(port);
