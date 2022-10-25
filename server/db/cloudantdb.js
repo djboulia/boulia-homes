@@ -43,7 +43,7 @@ const CloudantDB = function (cloudant, dbName, className) {
         });
     }
 
-    this.getById = function (id) {
+    this.findById = function (id) {
         return new Promise((resolve, reject) => {
             db.find({ selector: { _id: id } }, function (err, result) {
                 if (err) {
@@ -67,7 +67,7 @@ const CloudantDB = function (cloudant, dbName, className) {
         })
     }
 
-    this.getAll = function () {
+    this.findAll = function () {
         return new Promise((resolve, reject) => {
             db.find({ selector: { class: className } }, function (err, result) {
                 if (err) {
@@ -85,7 +85,7 @@ const CloudantDB = function (cloudant, dbName, className) {
         })
     }
 
-    this.update = function (record) {
+    this.put = function (record) {
         return new Promise((resolve, reject) => {
 
             if (!record._rev) {
@@ -116,7 +116,7 @@ const CloudantDB = function (cloudant, dbName, className) {
      * 
      * @param {Array} ids an array of ids to search for
      */
-    this.getIds = function (ids) {
+    this.findByIds = function (ids) {
         const self = this;
 
         return new Promise((resolve, reject) => {

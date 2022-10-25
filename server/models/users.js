@@ -3,15 +3,15 @@
 
 module.exports = function (db) {
 
-    this.getAll = function () {
-        return db.getAll();
+    this.findAll = function () {
+        return db.findAll();
     }
 
-    this.getById = function (id) {
-        return db.getById(id);
+    this.findById = function (id) {
+        return db.findById(id);
     }
 
-    this.getByUserid = function (userid) {
+    this.findByUserid = function (userid) {
         return new Promise((resolve, reject) => {
             db.findFields({ userid: userid })
                 .then((results) => {
@@ -37,7 +37,7 @@ module.exports = function (db) {
                 return;
             }
 
-            self.getByUserid(userid)
+            self.findByUserid(userid)
                 .then((player) => {
                     if (player.password !== password) {
                         reject(err);
@@ -51,6 +51,7 @@ module.exports = function (db) {
                     resolve(player);
                 })
                 .catch((e) => {
+                    console.log('findByUserid failed ', e);
                     reject(e);
                     return;
                 })

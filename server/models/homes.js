@@ -3,16 +3,16 @@
 
 module.exports = function (db) {
 
-    this.getById = function (id) {
-        return db.getById(id);
+    this.findById = function (id) {
+        return db.findById(id);
     }
 
-    this.getIds = function(ids) {
-        return db.getIds(ids);
+    this.findByIds = function(ids) {
+        return db.findByIds(ids);
     }
 
-    this.update = function (id) {
-        return db.update(id);
+    this.put = function (id) {
+        return db.put(id);
     }
 
     this.create = function (id) {

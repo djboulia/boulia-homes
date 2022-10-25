@@ -7,7 +7,7 @@
 
 const Cloudant = require('@cloudant/cloudant');
 const CloudantDB = require('./db/cloudantdb');
-const FileDB = require('./db/filedb');
+const FileDB = require('@apiserver/db-file');
 
 const isProduction = function () {
     return false;

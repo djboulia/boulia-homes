@@ -89,7 +89,7 @@ const ApiServer = function (reactClientDir) {
 
             await initDevices(context);
 
-            const result = await Homes.getIds(user.homes);
+            const result = await Homes.findByIds(user.homes);
 
             // get current status for all devices
             const promises = [];
@@ -125,7 +125,7 @@ const ApiServer = function (reactClientDir) {
 
         async function getHome(homesList, id) {
             const homes =
-                await Homes.getIds(homesList)
+                await Homes.findByIds(homesList)
                     .catch((err) => {
                         throw new Error('Error retrieving homes.');
                     })
