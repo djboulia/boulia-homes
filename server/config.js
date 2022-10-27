@@ -15,8 +15,8 @@ const config = {
     },
 
     models: {
-        'user': './models/users',
-        'home': './models/homes',
+        'user': './models/user',
+        'home': './models/home',
     },
 
     blink: {
