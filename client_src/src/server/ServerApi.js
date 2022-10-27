@@ -30,7 +30,7 @@ const buildPath = function( path ) {
 const ServerApi = {
 
     getLoginUrl() {
-        return baseUrl() + "/login";
+        return baseUrl() + "/users/login";
     },
 
     isLoggedIn() {
@@ -50,7 +50,7 @@ const ServerApi = {
         Session.reset();
 
         return new Promise((resolve, reject) => {
-            axios.post(buildPath('/login'), {
+            axios.post(buildPath('/users/login'), {
                 userid: userid,
                 password: password
             }).then(res => {
@@ -90,7 +90,7 @@ const ServerApi = {
         return new Promise((resolve, reject) => {
 
             axios
-                .post(buildPath('/logout'))
+                .post(buildPath('/users/logout'))
                 .then(res => {
                     console.log(res);
                     console.log(res.data);

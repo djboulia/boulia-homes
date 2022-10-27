@@ -356,14 +356,14 @@ const ApiServer = function (reactClientDir) {
             };
         }
 
-        server.method('/api/login', 'POST', login);
-        server.method('/api/logout', 'POST', logout);
+        server.method('/api/users/login', 'POST', login);
+        server.method('/api/users/logout', 'POST', logout);
 
         server.method('/api/homes', 'GET', homes, auth);
         server.method('/api/homes/:id/systems/camera/arm', 'POST', toggleCameras, auth);
         server.method('/api/homes/:id/systems/locks/lock', 'POST', toggleDoors, auth);
         server.method('/api/homes/:id/systems/watervalves/close', 'POST', toggleWater, auth);
-        server.method('/api/:id/systems/thermostat/eco', 'POST', ecoThermostats, auth);
+        server.method('/api/homes/:id/systems/thermostat/eco', 'POST', ecoThermostats, auth);
 
         server.method('/api/garages/:id/open', 'POST', toggleGarage, auth);
         server.method('/api/thermostats/:id/eco', 'POST', ecoThermostat, auth);
