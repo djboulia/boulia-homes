@@ -16,17 +16,26 @@ const basePath = function() {
  * useful for dev mode where the server might be hosted on a different url
  */
 const baseUrl = function () {
-    console.log("baseUrl: " + process.env.REACT_APP_API_URL);
-
     const url = (process.env.REACT_APP_API_URL) ? process.env.REACT_APP_API_URL : "";
 
     return url + basePath();
 }
 
 const buildPath = function( path ) {
-    return basePath() + path;
+    const result = baseUrl() + path;
+
+    console.log("buildPath: " + result);
+
+    return result
 }
 
+console.log('baseUrl: ', baseUrl());
+
+const request = axios.create({
+    baseURL: baseUrl(),
+    withCredentials: true
+ })
+ 
 const ServerApi = {
 
     getLoginUrl() {
@@ -50,7 +59,7 @@ const ServerApi = {
         Session.reset();
 
         return new Promise((resolve, reject) => {
-            axios.post(buildPath('/users/login'), {
+            request.post('/users/login', {
                 userid: userid,
                 password: password
             }).then(res => {
@@ -64,6 +73,8 @@ const ServerApi = {
                     const token = user.token;
                     const admin = (user.admin) ? true : false;
                     const ttl = user.ttl;
+
+                    console.log(res.headers);
 
                     Session.create(name, userid, admin, token, ttl);
 
@@ -89,8 +100,8 @@ const ServerApi = {
 
         return new Promise((resolve, reject) => {
 
-            axios
-                .post(buildPath('/users/logout'))
+            request
+                .post('/users/logout')
                 .then(res => {
                     console.log(res);
                     console.log(res.data);
@@ -111,8 +122,8 @@ const ServerApi = {
     homes() {
         return new Promise((resolve, reject) => {
 
-            axios
-                .get(buildPath('/homes'))
+            request
+                .get('/homes')
                 .then(res => {
                     console.log(res);
                     console.log(res.data);
@@ -145,8 +156,11 @@ const ServerApi = {
 
         return new Promise((resolve, reject) => {
 
-            axios
-                .post(buildPath('/homes/' + homeId + '/systems/camera/arm'), { arm: arm })
+            const path = '/homes/' + homeId + '/systems/camera/arm';
+            // console.log('path: ', path);
+
+            request
+                .post(path, { arm: arm })
                 .then(res => {
                     console.log(res.data);
 
@@ -171,8 +185,8 @@ const ServerApi = {
 
         return new Promise((resolve, reject) => {
 
-            axios
-                .post(buildPath('/garages/' + id + '/open'), { open: open })
+            request
+                .post('/garages/' + id + '/open', { open: open })
                 .then(res => {
                     console.log(res.data);
 
@@ -197,8 +211,8 @@ const ServerApi = {
 
         return new Promise((resolve, reject) => {
 
-            axios
-                .post(buildPath('/thermostats/' + id + '/eco'), { eco: eco })
+            request
+                .post('/thermostats/' + id + '/eco', { eco: eco })
                 .then(res => {
                     console.log(res.data);
 
@@ -223,8 +237,8 @@ const ServerApi = {
 
         return new Promise((resolve, reject) => {
 
-            axios
-                .post(buildPath('/thermostats/' + id + '/mode'), { mode: mode })
+            request
+                .post('/thermostats/' + id + '/mode', { mode: mode })
                 .then(res => {
                     console.log(res.data);
 
@@ -249,8 +263,8 @@ const ServerApi = {
 
         return new Promise((resolve, reject) => {
 
-            axios
-                .post(buildPath('/thermostats/' + id + '/temp'), { mode: mode, temp: temp })
+            request
+                .post('/thermostats/' + id + '/temp', { mode: mode, temp: temp })
                 .then(res => {
                     console.log(res.data);
 
@@ -275,8 +289,8 @@ const ServerApi = {
 
         return new Promise((resolve, reject) => {
 
-            axios
-                .post(buildPath('/homes/' + homeId + '/systems/thermostat/eco'), { eco: eco })
+            request
+                .post('/homes/' + homeId + '/systems/thermostat/eco', { eco: eco })
                 .then(res => {
                     console.log(res.data);
 
@@ -301,8 +315,8 @@ const ServerApi = {
 
         return new Promise((resolve, reject) => {
 
-            axios
-                .post(buildPath('/homes/' + homeId + '/systems/locks/lock'), { locked: locked })
+            request
+                .post('/homes/' + homeId + '/systems/locks/lock', { locked: locked })
                 .then(res => {
                     console.log(res.data);
 
@@ -327,8 +341,8 @@ const ServerApi = {
 
         return new Promise((resolve, reject) => {
 
-            axios
-                .post(buildPath('/homes/' + homeId + '/systems/watervalves/close'), { closed: closed })
+            request
+                .post('/homes/' + homeId + '/systems/watervalves/close', { closed: closed })
                 .then(res => {
                     console.log(res.data);
 

@@ -11,7 +11,9 @@
   "author": "djboulia@gmail.com",
   "license": "MIT",
   "dependencies": {
-    "@apiserver/reactserver": "file:~/Development/bluemix/apiserver/reactserver",
+    "@apiserver/modelserver": "file:~/Development/bluemix/apiserver/modelserver",
+    "@apiserver/model": "file:~/Development/bluemix/apiserver/model",
+    "@apiserver/model-db": "file:~/Development/bluemix/apiserver/model-db",
     "@apiserver/db-file": "file:~/Development/bluemix/apiserver/db-file",
     "@cloudant/cloudant": "^4.3.0",
     "axios": "^0.21.1",

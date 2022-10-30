@@ -36,7 +36,7 @@ export default function SystemPanel(props) {
     <div className={classes.root}>
       <Accordion className={classes.accordion} expanded={true}>
         <AccordionDetails className={classes.accordion}>
-              <System name={home.name} id={home._id} systems={systems} />
+              <System name={home.name} id={home.id} systems={systems} />
         </AccordionDetails>
       </Accordion>
     </div>

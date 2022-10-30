@@ -8,6 +8,12 @@
 const Cloudant = require('@cloudant/cloudant');
 const CloudantDB = require('./db/cloudantdb');
 const FileDB = require('@apiserver/db-file');
+const DbModel = require('@apiserver/model-db');
+const Model = require('@apiserver/model');
+const User = require('./models/user');
+const Home = require('./models/home');
+const Garage = require('./models/garage');
+const Thermostat = require('./models/thermostat');
 
 const isProduction = function () {
     return false;
@@ -34,17 +40,19 @@ const DBLoader = function (modelName, config) {
     }
 
     const db = (isProduction()) ? cloudantDB(config.getCloudant(), modelName) : fileDB(config.getFile(), modelName);
-    const module = require(modelPath);
-    return new module(db);
+    return db;
 }
 
 module.exports = {
-    getUsers : function (config) {
-        return DBLoader('user', config);
+    addModels : function(config, app) { 
+        app.addModel( new DbModel(DBLoader('user', config), 'user'), User);
+        app.addModel( new DbModel(DBLoader('home', config), 'home'), Home);
+        app.addModel( new Model('garage'), Garage);
+        app.addModel( new Model('thermostat'), Thermostat);
     },
 
-    getHomes : function (config) {
-        return DBLoader('home', config);
+    getUser : function(app) {
+        return app.getModel('user');
     }
 }
 
