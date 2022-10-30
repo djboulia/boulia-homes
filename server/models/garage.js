@@ -13,7 +13,7 @@ const Garage = function (model) {
     /**
      * open or close an individual garage door
      */
-     model.toggeGarage = async function(id, body) {
+     model.toggleGarage = async function(id, body) {
 
         console.log("got body: ", body);
         console.log("got id: ", id);
@@ -76,7 +76,7 @@ const Garage = function (model) {
                 }
             ]
         },
-        model.toggeGarage
+        model.toggleGarage
     );
 };
 
