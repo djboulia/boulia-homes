@@ -2,7 +2,20 @@ const smartthings = require('smartthings-node');
 const SmartThingsLock = require('./smartthings-lock');
 
 const SmartThings = function (accessToken) {
-    const st = new smartthings.SmartThings(accessToken);
+    let st = undefined;
+
+    this.init = function() {
+        return new Promise((resolve, reject) => {
+
+            if (st) {
+                // only need to initialize once
+                resolve(true);
+            } else {
+                st = new smartthings.SmartThings(accessToken);
+                resolve(true);
+            }
+        })
+    }
 
     this.listLocks = function () {
         return new Promise((resolve, reject) => {

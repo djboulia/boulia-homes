@@ -1,5 +1,8 @@
 
 const Lock = function (st) {
+    this.init = function() {
+        return st.init();
+    }
 
     this.updateSystem = function (systems) {
         const self = this;

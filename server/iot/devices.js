@@ -80,6 +80,7 @@ const Devices = function (config) {
 
         promises.push(camera.init());
         promises.push(thermostat.init());
+        promises.push(lock.init());
         promises.push(garage.init());
         promises.push(water.init());
 
