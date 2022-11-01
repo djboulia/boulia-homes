@@ -85,6 +85,23 @@ const Thermostat = function (model) {
     }
 
 
+    const responses = [
+        {
+            code: 200,
+            description: "Thermostat commnad successful"
+        },
+        {
+            code: 500,
+            description: "Error accessing thermostat"
+        }
+    ];
+
+    const tempMode = {
+        "required": true,
+        "type": 'string',
+        "enum": ["HEAT", "COOL", "OFF"]
+    };
+
     // add our additional entry points here
     // order is important since this is how the methods will be displayed
     // in the API explorer, so we add the login method first
@@ -94,16 +111,7 @@ const Thermostat = function (model) {
         'POST',
         {
             description: "Set or unset thermostat to eco",
-            responses: [
-                {
-                    code: 200,
-                    description: "Thermostat set or unset to eco"
-                },
-                {
-                    code: 500,
-                    description: "Error accessing thermostat"
-                }
-            ],
+            responses: responses,
             params: [
                 {
                     name: 'id',
@@ -134,16 +142,7 @@ const Thermostat = function (model) {
         'POST',
         {
             description: "Set thermostat mode",
-            responses: [
-                {
-                    code: 200,
-                    description: "Thermostat mode set"
-                },
-                {
-                    code: 500,
-                    description: "Error accessing thermostat"
-                }
-            ],
+            responses: responses,
             params: [
                 {
                     name: 'id',
@@ -157,10 +156,7 @@ const Thermostat = function (model) {
                     schema: {
                         "name": 'mode-command',
                         "properties": {
-                            "mode": {
-                                "required": true,
-                                "type": 'string'
-                            }
+                            "mode": tempMode
                         }
                     }
                 }
@@ -174,16 +170,7 @@ const Thermostat = function (model) {
         'POST',
         {
             description: "Set thermostat temp",
-            responses: [
-                {
-                    code: 200,
-                    description: "Thermostat temp set"
-                },
-                {
-                    code: 500,
-                    description: "Error accessing thermostat"
-                }
-            ],
+            responses: responses,
             params: [
                 {
                     name: 'id',
@@ -197,10 +184,7 @@ const Thermostat = function (model) {
                     schema: {
                         "name": 'temp-command',
                         "properties": {
-                            "mode": {
-                                "required": true,
-                                "type": 'string'
-                            },
+                            "mode": tempMode,
                             "temp": {
                                 "required": true,
                                 "type": 'integer'

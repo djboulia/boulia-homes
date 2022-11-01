@@ -47,7 +47,7 @@ const Garage = function (model) {
             responses: [
                 {
                     code: 200,
-                    description: "Garage opend or closed"
+                    description: "Garage opened or closed"
                 },
                 {
                     code: 500,
