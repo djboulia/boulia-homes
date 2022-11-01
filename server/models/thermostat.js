@@ -85,10 +85,17 @@ const Thermostat = function (model) {
     }
 
 
+    //
+    // possible responses from the thermostat api calls
+    //
     const responses = [
         {
             code: 200,
-            description: "Thermostat commnad successful"
+            description: "Thermostat command successful"
+        },
+        {
+            code: 401,
+            description: "Authorization failed. Login required."
         },
         {
             code: 500,
@@ -96,6 +103,9 @@ const Thermostat = function (model) {
         }
     ];
 
+    //
+    // valid valiues for the mode property of this API
+    //
     const tempMode = {
         "required": true,
         "type": 'string',
