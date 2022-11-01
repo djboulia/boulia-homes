@@ -187,7 +187,8 @@ const Devices = function (config) {
 
             Promise.all(promises)
                 .then((results) => {
-                    console.log('camera system arming complete');
+                    const state = arm ? 'arming' : 'disarming';
+                    console.log(`camera system ${state} complete`);
 
                     for (let i = 0; i < results.length; i++) {
                         const result = results[i];
