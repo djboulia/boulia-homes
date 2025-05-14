@@ -11,15 +11,15 @@
   "author": "djboulia@gmail.com",
   "license": "MIT",
   "dependencies": {
-    "@apiserver/modelserver": "file:~/Development/bluemix/apiserver/modelserver",
+    "@apiserver/db-file": "file:~/Development/bluemix/apiserver/db-file",
     "@apiserver/model": "file:~/Development/bluemix/apiserver/model",
     "@apiserver/model-db": "file:~/Development/bluemix/apiserver/model-db",
-    "@apiserver/db-file": "file:~/Development/bluemix/apiserver/db-file",
+    "@apiserver/modelserver": "file:~/Development/bluemix/apiserver/modelserver",
     "@cloudant/cloudant": "^4.3.0",
     "axios": "^0.21.1",
     "dotenv": "^8.2.0",
     "homebridge-flobymoen": "^1.0.3",
-    "meross-cloud": "^1.4.0",
+    "meross-cloud": "^3.1.2",
     "node-blink-security": "file:local_modules/node-blink-security",
     "path": "^0.12.7",
     "smartthings-node": "0.0.4"
