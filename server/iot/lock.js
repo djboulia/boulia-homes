@@ -1,108 +1,96 @@
+/**
+ * This is a generic lock interface that wraps around different lock providers,
+ * allowing for a unified way to manage locks in a smart home system.
+ */
+const Lock = function (lockProvider) {
+  this.init = function () {
+    return lockProvider.init();
+  };
 
-const Lock = function (st) {
-    this.init = function() {
-        return st.init();
+  this.updateSystem = async function (systems) {
+    const self = this;
+
+    const promises = [];
+    for (const device of systems) {
+      console.log("updateSystem ", device);
+      promises.push(self.systemStatus(device));
     }
 
-    this.updateSystem = function (systems) {
-        const self = this;
+    const results = await Promise.allSettled(promises);
 
-        return new Promise((resolve, reject) => {
-            const promises = [];
-            for (let j = 0; j < systems.length; j++) {
-                const device = systems[j];
-                console.log('updateSystem ', device);
+    results.forEach((result, index) => {
+      const device = systems[index];
 
-                promises.push(self.systemStatus(device));
-            }
+      if (result.status === "rejected") {
+        console.error("Error updating lock system: ", result.reason);
+        device.status = undefined;
+      } else {
+        const status = result.value;
+        device.status = status;
+      }
 
-            Promise.all(promises)
-                .then((results) => {
-                    for (let j = 0; j < results.length; j++) {
-                        const device = systems[j];
-                        const status = results[j];
-                        device.status = status;
+      console.log("lock system updated: ", device);
+    });
 
-                        console.log('lock system updated: ', device);
-                    }
+    return systems;
+  };
 
-                    resolve(systems);
-                })
-                .catch((e) => {
-                    reject(e);
-                })
-        })
+  this.systemStatus = async function (device) {
+    const status = {
+      locked: false,
+    };
+
+    const systemId = device.id;
+    console.log("system ", systemId);
+
+    const lock = await lockProvider.getLock(systemId).catch((error) => {
+      console.log(error);
+      throw error;
+    });
+
+    status.locked = lock.isLocked();
+    return status;
+  };
+
+  this.setAll = async function (devices, locked) {
+    const self = this;
+
+    const promises = [];
+    for (let j = 0; j < devices.length; j++) {
+      const device = devices[j];
+      console.log("setAll ", device);
+
+      promises.push(self.set(device.id, locked));
     }
 
-    this.systemStatus = function (device) {
-        const self = this;
+    const results = await Promise.allSettled(promises);
 
-        return new Promise((resolve, reject) => {
-            const status = {
-                locked: false,
-            };
+    results.forEach((result, index) => {
+      const device = devices[index];
 
-            const systemId = device.id;
-            console.log('system ', systemId);
+      if (result.status === "rejected") {
+        console.log("Error updating lock: ", device);
+      } else {
+        console.log("lock updated: ", device);
+      }
+    });
 
-            st.getLock(systemId)
-                .then((stLock) => {
-                    status.locked = stLock.isLocked();
-                    resolve(status);
-                })
-                .catch((error) => {
-                    console.log(error);
-                    reject(error);
-                });
-        });
+    return results;
+  };
+
+  this.set = async function (deviceId, locked) {
+    const lock = await lockProvider.getLock(deviceId).catch((error) => {
+      console.log(error);
+      throw error;
+    });
+
+    if (locked) {
+      await lock.lock();
+    } else {
+      await lock.unlock();
     }
-
-    this.lockAll = function (devices, locked) {
-        const self = this;
-
-        return new Promise((resolve, reject) => {
-            const promises = [];
-            for (let j = 0; j < devices.length; j++) {
-                const device = devices[j];
-                console.log('lockAll ', device);
-
-                promises.push(self.lock(device.id, locked));
-            }
-
-            Promise.all(promises)
-                .then((results) => {
-                    for (let j = 0; j < results.length; j++) {
-                        const device = devices[j];
-
-                        console.log('lock updated: ', device);
-                    }
-
-                    resolve(locked);
-                })
-                .catch((e) => {
-                    reject(e);
-                })
-        })
-    }
-
-    this.lock = function (deviceId, locked) {
-        return new Promise((resolve, reject) => {
-
-            st.getLock(deviceId)
-                .then((stLock) => {
-                    const promise = (locked) ? stLock.lock() : stLock.unlock();
-
-                    promise
-                        .then((result) => {
-                            resolve(locked);
-                        })
-                        .catch((error) => {
-                            console.log(error);
-                            reject(error);
-                        });
-                })
-        });
-    }
-}
+    return locked;
+  };
+};
 
 module.exports = Lock;

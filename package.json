@@ -19,6 +19,7 @@
     "axios": "^0.21.1",
     "dotenv": "^8.2.0",
     "homebridge-flobymoen": "^1.0.3",
+    "kwikset-halo": "file:local_modules/kwikset-halo",
     "meross-cloud": "^3.1.2",
     "node-blink-security": "file:local_modules/node-blink-security",
     "path": "^0.12.7",
