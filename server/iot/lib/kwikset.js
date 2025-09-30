@@ -5,7 +5,11 @@ const KwiksetHaloModule = function (email, password) {
   let halo = undefined;
 
   this.init = async function () {
-    if (halo) return true; // only need to initialize once
+    if (halo) {
+      console.log("Kwikset Halo initialized previously");
+      return true; // only need to initialize once
+    }
+
     const credentials = await KwiksetHalo.login(email, password);
 
     if (!credentials) {
@@ -19,6 +23,10 @@ const KwiksetHaloModule = function (email, password) {
   };
 
   this.getLock = async function (deviceId) {
+    if (!halo) {
+      throw new Error("Kwikset Halo not initialized");
+    }
+
     const status = await halo.getLockState(deviceId).catch((e) => {
       console.error("error ", e);
       throw e;

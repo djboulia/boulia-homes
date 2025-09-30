@@ -1,105 +1,99 @@
-
 const Water = function (flo) {
+  this.init = function () {
+    return flo.init();
+  };
 
-    this.init = function() {
-        return flo.init();
-    }
+  this.updateSystem = function (systems) {
+    const self = this;
 
-    this.updateSystem = function (systems) {
-        const self = this;
+    return new Promise((resolve, reject) => {
+      const promises = [];
+      for (let j = 0; j < systems.length; j++) {
+        const device = systems[j];
+        console.log("updateSystem ", device);
 
-        return new Promise((resolve, reject) => {
-            const promises = [];
-            for (let j = 0; j < systems.length; j++) {
-                const device = systems[j];
-                console.log('updateSystem ', device);
+        promises.push(self.systemStatus(device));
+      }
 
-                promises.push(self.systemStatus(device));
-            }
+      Promise.all(promises)
+        .then((results) => {
+          for (let j = 0; j < results.length; j++) {
+            const device = systems[j];
+            const status = results[j];
+            device.status = status;
 
-            Promise.all(promises)
-                .then((results) => {
-                    for (let j = 0; j < results.length; j++) {
-                        const device = systems[j];
-                        const status = results[j];
-                        device.status = status;
+            console.log("watervalve system updated: ", device);
+          }
 
-                        console.log('watervalve system updated: ', device);
-                    }
-
-                    resolve(systems);
-                })
-                .catch((e) => {
-                    reject(e);
-                })
+          resolve(systems);
         })
-    }
-
-    this.systemStatus = function (device) {
-
-        return new Promise((resolve, reject) => {
-            const status = {
-                open: false,
-            };
-
-            const systemId = device.id;
-            console.log('system ', systemId);
-
-            flo.isValveOpen(systemId)
-                .then((result) => {
-                    status.open = result;
-                    resolve(status);
-                })
-                .catch((error) => {
-                    console.log(error);
-                    reject(error);
-                });
+        .catch((e) => {
+          reject(e);
         });
-    }
+    });
+  };
 
-    this.closeAll = function (devices, closed) {
-        const self = this;
+  this.systemStatus = async function (device) {
+    const status = {
+      open: undefined,
+    };
 
-        return new Promise((resolve, reject) => {
-            const promises = [];
-            for (let j = 0; j < devices.length; j++) {
-                const device = devices[j];
-                console.log('closeAll ', device);
+    const systemId = device.id;
+    console.log("system ", systemId);
 
-                promises.push(self.close(device.id, closed));
-            }
+    result = await flo.isValveOpen(systemId).catch((error) => {
+      console.log(error);
+      return undefined; // could be offline, return undefined status
+    });
 
-            Promise.all(promises)
-                .then((results) => {
-                    for (let j = 0; j < results.length; j++) {
-                        const device = devices[j];
+    status.open = result;
+    return status;
+  };
 
-                        console.log('water updated: ', device);
-                    }
+  this.closeAll = function (devices, closed) {
+    const self = this;
 
-                    resolve(closed);
-                })
-                .catch((e) => {
-                    reject(e);
-                })
+    return new Promise((resolve, reject) => {
+      const promises = [];
+      for (let j = 0; j < devices.length; j++) {
+        const device = devices[j];
+        console.log("closeAll ", device);
+
+        promises.push(self.close(device.id, closed));
+      }
+
+      Promise.all(promises)
+        .then((results) => {
+          for (let j = 0; j < results.length; j++) {
+            const device = devices[j];
+
+            console.log("water updated: ", device);
+          }
+
+          resolve(closed);
         })
-    }
-
-    this.close = function (deviceId, closed) {
-        return new Promise((resolve, reject) => {
-            flo.setValve(deviceId, !closed)
-                .then(() => {
-                    // flo doesn't return the state, but we
-                    // assume a positive result means it has been
-                    // set to the new state
-                    resolve(closed);
-                })
-                .catch((error) => {
-                    console.log(error);
-                    reject(error);
-                })
+        .catch((e) => {
+          reject(e);
         });
-    }
-}
+    });
+  };
+
+  this.close = function (deviceId, closed) {
+    return new Promise((resolve, reject) => {
+      flo
+        .setValve(deviceId, !closed)
+        .then(() => {
+          // flo doesn't return the state, but we
+          // assume a positive result means it has been
+          // set to the new state
+          resolve(closed);
+        })
+        .catch((error) => {
+          console.log(error);
+          reject(error);
+        });
+    });
+  };
+};
 
 module.exports = Water;

@@ -83,7 +83,7 @@ const Devices = function (config) {
     promises.push(garage.init());
     promises.push(water.init());
 
-    return Promise.all(promises);
+    return Promise.allSettled(promises);
   };
 
   this.getThermostats = function () {
@@ -159,21 +159,19 @@ const Devices = function (config) {
     });
   };
 
-  this.updateHomeStatus = function (home) {
-    return new Promise((resolve, reject) => {
-      const updates = JSON.parse(JSON.stringify(home));
+  this.updateHomeStatus = async function (home) {
+    const updates = JSON.parse(JSON.stringify(home));
 
-      updateSystems(updates.systems)
-        .then((results) => {
-          return updateZones(updates.zones);
-        })
-        .then((results) => {
-          resolve(updates);
-        })
-        .catch((e) => {
-          console.log("updateHomeStatus error: ", e);
-        });
+    await updateSystems(updates.systems).catch((e) => {
+      console.log(`updateHomeStatus: home ${updates} updateSystems error: `, e);
     });
+
+    await updateZones(updates.zones).catch((e) => {
+      console.log(`updateHomeStatus: home ${updates} updateZones error: `, e);
+    });
+
+    console.log("home status updated: ", updates);
+    return updates;
   };
 
   /**
