@@ -1,22 +1,22 @@
-import React from 'react';
-import { Redirect } from 'react-router-dom'
-import { Button, TextField } from '@material-ui/core';
-import Container from '@material-ui/core/Container';
-import Alert from '@material-ui/lab/Alert';
-import Title from './Title';
-import ServerApi from './server/ServerApi';
+import React from "react";
+import { Redirect } from "react-router-dom";
+import { Button, TextField } from "@material-ui/core";
+import Container from "@material-ui/core/Container";
+import Alert from "@material-ui/lab/Alert";
+import Title from "./Title";
+import ServerApi from "./server/ServerApi";
 
 const statusAlert = (msg) => {
-  return <Alert severity="info">{msg}</Alert>
-}
+  return <Alert severity="info">{msg}</Alert>;
+};
 
 const errorAlert = (msg) => {
-  return <Alert severity="error">{msg}</Alert>
-}
+  return <Alert severity="error">{msg}</Alert>;
+};
 
 export default function Login(props) {
   const [redirectToReferrer, setRedirectToReferrer] = React.useState(false);
-  const [statusMsg, setStatusMsg] = React.useState('Please log in.');
+  const [statusMsg] = React.useState("Please log in.");
   const [errorMsg, setErrorMsg] = React.useState(undefined);
   const [username, setUsername] = React.useState("");
   const [password, setPassword] = React.useState("");
@@ -25,35 +25,35 @@ export default function Login(props) {
 
   const LOGOUT_DURATION = 5 * 60 * 1000; // 5 minutes
   let logoutTimeout = null;
-  
-  const logout = function() {
+
+  const logout = function () {
     console.log("timer expired... logging out");
 
     ServerApi.logout()
-    .then((result) => {
-      console.log("logout complete, redirecting to /login page");
+      .then(() => {
+        console.log("logout complete, redirecting to /login page");
 
-      window.location.reload();
-    })
-    .catch((e) => {
-      console.log('Error ' + e.message);
+        window.location.reload();
+      })
+      .catch((e) => {
+        console.log("Error " + e.message);
 
-      window.location.reload();
-    })
-  }
+        window.location.reload();
+      });
+  };
 
-  const cancelTimer = function() {
+  const cancelTimer = function () {
     if (logoutTimeout) clearTimeout(logoutTimeout);
-  }
+  };
 
-  const startTimer = function() {
-    logoutTimeout =  setTimeout(logout, LOGOUT_DURATION)
-  }
+  const startTimer = function () {
+    logoutTimeout = setTimeout(logout, LOGOUT_DURATION);
+  };
 
-  const resetTimer = function() {
+  const resetTimer = function () {
     cancelTimer();
     startTimer();
-  }
+  };
 
   const login = function () {
     ServerApi.login(username, password)
@@ -65,43 +65,43 @@ export default function Login(props) {
         resetTimer();
       })
       .catch((e) => {
-        console.log('Error ' + e.message);
+        console.log("Error " + e.message);
         setErrorMsg(e.message);
-      })
-  }
+      });
+  };
 
   const handleUserNameChange = function (e) {
     setUsername(e.target.value);
-  }
+  };
 
   const handlePasswordChange = function (e) {
     setPassword(e.target.value);
-  }
+  };
 
   /**
    * as a convenience, we start the login process
    * if someone presses enter from the password field.
-   * 
+   *
    * @param {Object} e key event
    */
   const handleEnterKey = function (e) {
     if (e.key === "Enter") {
       login();
     }
-  }
+  };
 
   const { from } = props.location.state || {
     from: {
-      pathname: '/'
-    }
-  }
+      pathname: "/",
+    },
+  };
 
   if (redirectToReferrer === true) {
     console.log("Redirecting to : " + from.pathname);
-    return <Redirect to={from} />
+    return <Redirect to={from} />;
   }
 
-  const msg = (errorMsg) ? errorAlert(errorMsg) : statusAlert(statusMsg);
+  const msg = errorMsg ? errorAlert(errorMsg) : statusAlert(statusMsg);
 
   return (
     <Container maxWidth="xs">
@@ -114,7 +114,8 @@ export default function Login(props) {
         margin="normal"
         fullWidth
         label="User Name"
-        onChange={handleUserNameChange} />
+        onChange={handleUserNameChange}
+      />
 
       <TextField
         type="password"
@@ -122,7 +123,8 @@ export default function Login(props) {
         margin="normal"
         fullWidth
         onChange={handlePasswordChange}
-        onKeyPress={handleEnterKey} />
+        onKeyPress={handleEnterKey}
+      />
 
       <Button
         fullWidth
@@ -132,9 +134,7 @@ export default function Login(props) {
         onClick={login}
       >
         Log In
-        </Button>
-
+      </Button>
     </Container>
-
-  )
+  );
 }
