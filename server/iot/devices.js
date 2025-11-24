@@ -98,6 +98,14 @@ const Devices = function (config) {
     return water;
   };
 
+  this.getLockSmartThings = function () {
+    return lockSmartThings;
+  };
+
+  this.getLockKwiksetHalo = function () {
+    return lockKwiksetHalo;
+  };
+
   const updateSystems = function (systems) {
     console.log("systems: ", systems);
 
@@ -143,9 +151,24 @@ const Devices = function (config) {
         const zone = zones[i];
         const cameras = zone.cameras || [];
         const thermostats = zone.thermostats || [];
+        const locks = zone.locks || [];
 
         promises.push(camera.update(cameras));
         promises.push(thermostat.updateSystem(thermostats));
+
+        const smartThingsLocks = locks.filter(
+          (device) => device.type === "smartthings"
+        );
+        if (smartThingsLocks.length > 0) {
+          promises.push(lockSmartThings.updateSystem(smartThingsLocks));
+        }
+
+        const kwiksetHaloLocks = locks.filter(
+          (device) => device.type === "kwikset-halo"
+        );
+        if (kwiksetHaloLocks.length > 0) {
+          promises.push(lockKwiksetHalo.updateSystem(kwiksetHaloLocks));
+        }
       }
 
       Promise.all(promises)

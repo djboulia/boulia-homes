@@ -16,7 +16,7 @@ const useStyles = makeStyles({
   },
 });
 
-export default function Thermostat(props) {
+export default function Camera(props) {
   const classes = useStyles();
   const device = props.device;
 

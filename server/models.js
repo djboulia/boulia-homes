@@ -5,55 +5,57 @@
  * database.
  */
 
-const Cloudant = require('@cloudant/cloudant');
-const CloudantDB = require('./db/cloudantdb');
-const FileDB = require('@apiserver/db-file');
-const DbModel = require('@apiserver/model-db');
-const Model = require('@apiserver/model');
-const User = require('./models/user');
-const Home = require('./models/home');
-const Garage = require('./models/garage');
-const Thermostat = require('./models/thermostat');
+const Cloudant = require("@cloudant/cloudant");
+const CloudantDB = require("./db/cloudantdb");
+const FileDB = require("@apiserver/db-file");
+const DbModel = require("@apiserver/model-db");
+const Model = require("@apiserver/model");
+const User = require("./models/user");
+const Home = require("./models/home");
+const Garage = require("./models/garage");
+const Thermostat = require("./models/thermostat");
+const Lock = require("./models/lock");
 
 const isProduction = function () {
-    return false;
-}
+  return false;
+};
 
 let cloudant = undefined;
 
 const cloudantDB = function (config, modelName) {
-    if (!cloudant) {
-        cloudant = Cloudant({ account: config.me, password: config.password });
-    }
+  if (!cloudant) {
+    cloudant = Cloudant({ account: config.me, password: config.password });
+  }
 
-    return new CloudantDB(cloudant, config.db, modelName);
-}
+  return new CloudantDB(cloudant, config.db, modelName);
+};
 
 const fileDB = function (config, modelName) {
-    return new FileDB(config.path, modelName);
-}
+  return new FileDB(config.path, modelName);
+};
 
-const DBLoader = function (modelName, config) {    
-    const modelPath = config.getModel(modelName);
-    if (!modelPath) {
-        throw 'Model ' + modelName + ' not found!';
-    }
+const DBLoader = function (modelName, config) {
+  const modelPath = config.getModel(modelName);
+  if (!modelPath) {
+    throw "Model " + modelName + " not found!";
+  }
 
-    const db = (isProduction()) ? cloudantDB(config.getCloudant(), modelName) : fileDB(config.getFile(), modelName);
-    return db;
-}
+  const db = isProduction()
+    ? cloudantDB(config.getCloudant(), modelName)
+    : fileDB(config.getFile(), modelName);
+  return db;
+};
 
 module.exports = {
-    addModels : function(config, app) { 
-        app.addModel( new DbModel(DBLoader('user', config), 'user'), User);
-        app.addModel( new DbModel(DBLoader('home', config), 'home'), Home);
-        app.addModel( new Model('garage'), Garage);
-        app.addModel( new Model('thermostat'), Thermostat);
-    },
+  addModels: function (config, app) {
+    app.addModel(new DbModel(DBLoader("user", config), "user"), User);
+    app.addModel(new DbModel(DBLoader("home", config), "home"), Home);
+    app.addModel(new Model("garage"), Garage);
+    app.addModel(new Model("thermostat"), Thermostat);
+    app.addModel(new Model("lock"), Lock);
+  },
 
-    getUser : function(app) {
-        return app.getModel('user');
-    }
-}
-
-
+  getUser: function (app) {
+    return app.getModel("user");
+  },
+};
