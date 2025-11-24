@@ -12,7 +12,7 @@ const Thermostat = require("./thermostat");
 const Water = require("./water");
 
 const loadBlink = function (cfg) {
-  const blink = new Blink(cfg.email, cfg.password, cfg.app, cfg.device);
+  const blink = new Blink(cfg.credentialsFile);
 
   return blink;
 };

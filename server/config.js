@@ -19,10 +19,7 @@ const config = {
   },
 
   blink: {
-    email: process.env.BLINK_EMAIL,
-    password: process.env.BLINK_PASSWORD,
-    app: process.env.BLINK_APP_NAME,
-    device: process.env.BLINK_DEVICE_NAME,
+    credentialsFile: process.env.BLINK_CREDENTIALS_FILE,
   },
 
   nest: {

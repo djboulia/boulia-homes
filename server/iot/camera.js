@@ -1,225 +1,183 @@
 const Camera = function (blink) {
-    let blinkModule = undefined;
+  let blinkModule = undefined;
 
-    /**
-     * initialize or refresh the camera info
-     */
-    this.init = function () {
-        return new Promise((resolve, reject) => {
-            blink.init()
-                .then((module) => {
-                    blinkModule = module;
+  /**
+   * initialize or refresh the camera info
+   */
+  this.init = async function () {
+    const module = await blink.init().catch((e) => {
+      console.log("Blink setup error: ", e);
+      throw e;
+    });
 
-                    console.log('setting up blink library');
-                    return blinkModule.setupSystem();
-                })
-                .then(() => {
-                    resolve();
-                })
-                .catch((e) => {
-                    console.log('Blink setup error: ', e);
-                    reject(e);
-                })
-        });
+    blinkModule = module;
+
+    console.log("setting up blink library");
+    await blinkModule.setupSystem();
+  };
+
+  this.updateSystem = async function (systems) {
+    const self = this;
+
+    const promises = [];
+    for (let j = 0; j < systems.length; j++) {
+      const device = systems[j];
+      console.log("updateSystem ", device);
+
+      promises.push(self.systemStatus(device));
     }
 
-    this.updateSystem = function (systems) {
-        const self = this;
+    const results = await Promise.all(promises).catch((e) => {
+      console.error("Error updating camera systems: ", e);
+      throw e;
+    });
 
-        return new Promise((resolve, reject) => {
-            const promises = [];
-            for (let j = 0; j < systems.length; j++) {
-                const device = systems[j];
-                console.log('updateSystem ', device);
+    for (let j = 0; j < results.length; j++) {
+      const device = systems[j];
+      const status = results[j];
+      device.status = status;
 
-                promises.push(self.systemStatus(device));
-            }
-
-            Promise.all(promises)
-                .then((results) => {
-                    for (let j = 0; j < results.length; j++) {
-                        const device = systems[j];
-                        const status = results[j];
-                        device.status = status;
-
-                        console.log('camera system updated: ', device);
-                    }
-
-                    resolve(systems);
-                })
-                .catch((e) => {
-                    reject(e);
-                })
-        })
+      console.log("camera system updated: ", device);
     }
 
-    this.systemArmed = function (systemId) {
-        return new Promise((resolve, reject) => {
+    return systems;
+  };
 
-            blinkModule.isArmed()
-                .then((results) => {
+  this.systemArmed = async function (systemId) {
+    const results = await blinkModule.isArmed().catch((error) => {
+      console.log(error);
+      throw error;
+    });
 
-                    console.log('armed ', results);
-                    console.log('system id ' + systemId);
+    console.log("armed ", results);
+    console.log("system id " + systemId);
 
-                    for (var id in results) {
-                        if (id.toString() === systemId.toString()) {
-                            const result = results[id];
-                            resolve(result);
-                            return;
-                        }
-                    }
-
-                    const msg = 'Error: could not find system ' + systemId;
-                    console.log(msg);
-                    reject(msg);
-                })
-                .catch((error) => {
-                    console.log(error);
-                    reject(error);
-                });
-        });
+    for (var id in results) {
+      if (id.toString() === systemId.toString()) {
+        const result = results[id];
+        return result;
+      }
     }
 
-    this.systemOnline = function (systemId) {
-        return new Promise((resolve, reject) => {
+    const msg = "Error: could not find system " + systemId;
+    console.log(msg);
+    throw new Error(msg);
+  };
 
-            blinkModule.isOnline()
-                .then((results) => {
+  this.systemOnline = async function (systemId) {
+    const results = await blinkModule.isOnline().catch((error) => {
+      console.log(error);
+      throw error;
+    });
 
-                    console.log('online ', results);
-                    console.log('system id ' + systemId);
+    console.log("online ", results);
+    console.log("system id " + systemId);
 
-                    for (var id in results) {
-                        if (id.toString() === systemId.toString()) {
-                            const result = results[id];
-                            resolve(result);
-                            return;
-                        }
-                    }
-
-                    const msg = 'Error: could not find system ' + systemId;
-                    console.log(msg);
-                    reject(msg);
-                })
-                .catch((error) => {
-                    console.log(error);
-                    reject(error);
-                });
-        });
+    for (var id in results) {
+      if (id.toString() === systemId.toString()) {
+        const result = results[id];
+        return result;
+      }
     }
 
-    this.arm = function (systemId, arm) {
-        return new Promise((resolve, reject) => {
+    const msg = "Error: could not find system " + systemId;
+    console.log(msg);
+    throw new Error(msg);
+  };
 
-            blinkModule.setArmed(arm, [systemId])
-                .then((result) => {
+  this.arm = async function (systemId, arm) {
+    const result = await blinkModule
+      .setArmed(arm, [systemId])
+      .catch((error) => {
+        console.log(error);
+        throw error;
+      });
 
-                    console.log('system id ' + systemId);
-                    console.log('system ', result[systemId]);
+    console.log("system id " + systemId);
+    console.log("system ", result[systemId]);
 
-                    resolve(result[systemId].command === 'arm');
-                })
-                .catch((error) => {
-                    console.log(error);
-                    reject(error);
-                });
-        });
+    return result[systemId].command === "arm";
+  };
+
+  this.systemStatus = async function (device) {
+    const self = this;
+
+    const status = {
+      armed: false,
+      online: false,
+    };
+
+    const systemId = device.id;
+    console.log("system ", systemId);
+
+    try {
+      const armed = await self.systemArmed(systemId);
+      status.armed = armed;
+
+      const online = await self.systemOnline(systemId);
+      status.online = online;
+
+      return status;
+    } catch (error) {
+      console.log(error);
+      throw error;
+    }
+  };
+
+  this.update = async function (devices) {
+    const self = this;
+
+    const promises = [];
+    for (let j = 0; j < devices.length; j++) {
+      const device = devices[j];
+      console.log("camera ", device);
+
+      promises.push(self.status(device));
     }
 
-    this.systemStatus = function (device) {
-        const self = this;
+    const results = await Promise.all(promises).catch((e) => {
+      console.error("Error updating cameras: ", e);
+      throw e;
+    });
 
-        return new Promise((resolve, reject) => {
-            const status = {
-                armed: false,
-                online: false
-            };
+    for (let j = 0; j < results.length; j++) {
+      const device = devices[j];
+      const status = results[j];
+      device.status = status;
 
-            const systemId = device.id;
-            console.log('system ', systemId);
-
-            self.systemArmed(systemId)
-                .then((result) => {
-                    status.armed = result;
-
-                    return self.systemOnline(systemId);
-                })
-                .then((result) => {
-                    status.online = result;
-
-                    resolve(status);
-                })
-                .catch((error) => {
-                    console.log(error);
-                    reject(error);
-                });
-        });
+      console.log("camera updated: ", device);
     }
 
-    this.update = function (devices) {
-        const self = this;
+    return devices;
+  };
 
-        return new Promise((resolve, reject) => {
-            const promises = [];
-            for (let j = 0; j < devices.length; j++) {
-                const device = devices[j];
-                console.log('camera ', device);
+  this.status = async function (camera) {
+    const system = camera.system;
+    const cameraId = camera.id;
 
-                promises.push(self.status(device));
-            }
+    const status = {};
 
-            Promise.all(promises)
-                .then((results) => {
-                    for (let j = 0; j < results.length; j++) {
-                        const device = devices[j];
-                        const status = results[j];
-                        device.status = status;
+    const cameras = await blinkModule.getCameras().catch((error) => {
+      console.log(error);
+      throw error;
+    });
 
-                        console.log('camera updated: ', device);
-                    }
+    // console.log(blink);
+    // console.log('cameras: ' + JSON.stringify(cameras));
+    for (var id in cameras) {
+      const camera = cameras[id];
+      if (camera.id.toString() === cameraId.toString()) {
+        console.log("found camera " + camera.name + ", " + camera.id);
+        status.temperature = camera.temperature;
 
-                    resolve(devices);
-                })
-                .catch((e) => {
-                    reject(e);
-                })
-        })
+        return status;
+      }
     }
 
-    this.status = function (camera) {
-        return new Promise((resolve, reject) => {
-            const system = camera.system;
-            const cameraId = camera.id;
-
-            const status = {};
-
-            blinkModule.getCameras()
-                .then((cameras) => {
-
-                    // console.log(blink);
-                    // console.log('cameras: ' + JSON.stringify(cameras));
-                    for (var id in cameras) {
-                        const camera = cameras[id];
-                        if (camera.id.toString() === cameraId.toString()) {
-                            console.log('found camera ' + camera.name + ', ' + camera.id);
-                            status.temperature = camera.temperature;
-
-                            resolve(status);
-                            return;
-                        }
-                    }
-
-                    const msg = 'Error: could not find camera ' + cameraId;
-                    console.log(msg);
-                    reject(msg);
-                })
-                .catch((error) => {
-                    console.log(error);
-                    reject(error);
-                });
-        });
-    }
-}
+    const msg = "Error: could not find camera " + cameraId;
+    console.log(msg);
+    throw new Error(msg);
+  };
+};
 
 module.exports = Camera;
