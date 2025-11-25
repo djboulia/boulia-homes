@@ -1,38 +1,26 @@
 import React from "react";
 import { makeStyles } from "@material-ui/core/styles";
-import Card from "@material-ui/core/Card";
-import CardContent from "@material-ui/core/CardContent";
 import Typography from "@material-ui/core/Typography";
 import MultiToggleButton from "./components/MultiToggleButton";
 import { LinearProgress } from "@material-ui/core";
 import ServerApi from "../server/ServerApi";
 import Alert from "@material-ui/lab/Alert";
+import Grid from "@material-ui/core/Grid";
 
 const useStyles = makeStyles({
   root: {
-    width: "100%",
-  },
-  heading: {
-    fontSize: 14,
-    fontWeight: 600,
-  },
-  title: {
-    fontSize: 14,
-  },
-  lock: {
-    fontSize: 12,
+    paddingTop: 10,
+    paddingBottom: 10,
+    marginLeft: 5,
+    marginRight: 5,
   },
 });
 
-export default function Locks(props) {
+export default function LockGroupItem(props) {
   const classes = useStyles();
   const device = props.device;
   const [inProgress, setInProgress] = React.useState(false);
   const [errorMsg, setErrorMsg] = React.useState(undefined);
-
-  const handleClick = function (e) {
-    console.log("click: ", e);
-  };
 
   const onLockChanged = function (event) {
     setInProgress(true);
@@ -74,34 +62,44 @@ export default function Locks(props) {
   const msg = errorMsg ? errorAlert(errorMsg) : <div></div>;
 
   return (
-    <Card className={classes.root}>
-      <CardContent onClick={handleClick}>
-        {inProgress && progressIndicator()}
+    <>
+      {inProgress && progressIndicator()}
 
-        {!inProgress && msg}
+      {!inProgress && msg}
 
-        <div className={classes.heading}>{device.name}</div>
-        {device.status.lockState === "LOCKED" ||
-        device.status.lockState === "UNLOCKED" ? (
-          <MultiToggleButton
-            className={classes.lock}
-            selected={device.status.lockState === "LOCKED" ? 1 : 0}
-            labels={["UNLOCKED", "LOCKED"]}
-            onChange={onLockChanged}
-          />
-        ) : device.status.lockState === "UNKNOWN" ? (
-          <MultiToggleButton
-            className={classes.lock}
-            selected={device.status.lockState === "LOCKED" ? 1 : 0}
-            labels={["UNKNOWN", "LOCKED"]}
-            onChange={onLockChanged}
-          />
-        ) : (
-          <Typography className={classes.lock}>
-            {device.status.lockState}
-          </Typography>
-        )}
-      </CardContent>
-    </Card>
+      <Grid
+        className={classes.root}
+        component="label"
+        container
+        alignItems="center"
+        spacing={3}
+      >
+        <Grid item component="span" xs={5}>
+          {device.name}
+        </Grid>
+        <Grid item component="span" xs={5}>
+          {device.status.lockState === "LOCKED" ||
+          device.status.lockState === "UNLOCKED" ? (
+            <MultiToggleButton
+              className={classes.lock}
+              selected={device.status.lockState === "LOCKED" ? 1 : 0}
+              labels={["UNLOCKED", "LOCKED"]}
+              onChange={onLockChanged}
+            />
+          ) : device.status.lockState === "UNKNOWN" ? (
+            <MultiToggleButton
+              className={classes.lock}
+              selected={device.status.lockState === "LOCKED" ? 1 : 0}
+              labels={["UNKNOWN", "LOCKED"]}
+              onChange={onLockChanged}
+            />
+          ) : (
+            <Typography className={classes.lock}>
+              {device.status.lockState}
+            </Typography>
+          )}{" "}
+        </Grid>
+      </Grid>
+    </>
   );
 }

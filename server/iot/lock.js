@@ -48,7 +48,7 @@ const Lock = function (lockProvider) {
       throw error;
     });
 
-    status.locked = lock.isLocked();
+    status.lockState = lock.getLockState();
     return status;
   };
 

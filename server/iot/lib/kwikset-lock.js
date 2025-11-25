@@ -1,13 +1,14 @@
 const HaloLock = function (halo, deviceId, deviceInfo) {
-  this.isLocked = function () {
+  this.getLockState = function () {
     console.log("halo lock status ", deviceInfo.doorstatus);
 
-    const lockStatus = deviceInfo.doorstatus;
-    const isLocked = lockStatus === "Locked";
+    const lockState = deviceInfo?.doorstatus
+      ? deviceInfo.doorstatus.toUpperCase()
+      : "UNKNOWN";
 
-    console.log("halo isLocked returning ", isLocked);
+    console.log("halo getLockState returning ", lockState);
 
-    return isLocked;
+    return lockState;
   };
 
   this.lock = async function () {
