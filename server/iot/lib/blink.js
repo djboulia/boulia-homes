@@ -19,7 +19,7 @@ const Blink = function (credentialsFile) {
         console.log("refreshed tokens", loginAttributes);
 
         const jsonString = JSON.stringify(loginAttributes, null, 2);
-        fs.writeFile(credentialsFilecredentialsFile, jsonString, (err) => {
+        fs.writeFile(credentialsFile, jsonString, (err) => {
           if (err) {
             console.error("Error writing JSON file:", err);
           } else {
