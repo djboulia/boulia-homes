@@ -34,12 +34,14 @@ export default function Locks(props) {
     console.log("click: ", e);
   };
 
-  const onLockChanged = function (index) {
+  const onLockChanged = function (event) {
     setInProgress(true);
 
     // index 0 = unlocked, 1 = locked
-    const locked = index === 0 ? true : false;
-    console.log("setting lock to ", locked);
+    const selected = event.selected;
+    console.log("selected ", selected);
+    const locked = selected === 0 ? false : true;
+    console.log("setting the lock to ", locked);
 
     ServerApi.setLock(device.id, device.type, locked)
       .then((result) => {

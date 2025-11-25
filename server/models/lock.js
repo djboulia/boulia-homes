@@ -26,10 +26,12 @@ const Lock = function (model) {
 
     let result;
     if (type === "smartthings") {
+      console.log("setting smartthings lock ", id, locked);
       result = await lockSmartThings.set(id, locked).catch((err) => {
         throw new Error("Error setting smartthings lock state for " + id + ".");
       });
     } else if (type === "kwikset-halo") {
+      console.log("setting kwikset-halo lock ", id, locked);
       result = await lockKwiksetHalo.set(id, locked).catch((err) => {
         throw new Error(
           "Error setting kwikset-halo lock state for " + id + "."
