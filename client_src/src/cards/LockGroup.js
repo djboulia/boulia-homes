@@ -23,14 +23,16 @@ export default function LockGroup({ locks, onLocksChanged }) {
 
   if (!locks) return null;
 
+  console.log("LockGroup locks:", locks);
+
   const allLocked =
-    locks.filter((lock) => lock.status.lockState === "LOCKED").length ===
+    locks.filter((lock) => lock.status?.lockState === "LOCKED").length ===
     locks.length;
   const allUnlocked =
     locks.filter(
       (lock) =>
-        lock.status.lockState === "UNLOCKED" ||
-        lock.status.lockState === "UNKNOWN" // treat unknown as unlocked
+        lock.status?.lockState === "UNLOCKED" ||
+        lock.status?.lockState === "UNKNOWN" // treat unknown as unlocked
     ).length === locks.length;
 
   // show it as a single toggle if all locked or all unlocked
@@ -39,7 +41,7 @@ export default function LockGroup({ locks, onLocksChanged }) {
       <Typography className={classes.title} gutterBottom>
         <Toggle
           name="Doors"
-          checked={locked}
+          checked={allLocked}
           onlabel="Locked"
           offlabel="Unlocked"
           onChange={onLocksChanged}
