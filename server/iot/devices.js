@@ -106,81 +106,67 @@ const Devices = function (config) {
     return lockKwiksetHalo;
   };
 
-  const updateSystems = function (systems) {
+  const updateSystems = async function (systems) {
     console.log("systems: ", systems);
 
-    return new Promise((resolve, reject) => {
-      const promises = [];
+    const promises = [];
 
-      const cameras = systems.cameras || [];
-      const thermostats = systems.thermostats || [];
+    const cameras = systems.cameras || [];
+    const thermostats = systems.thermostats || [];
 
-      // [djb 07/06/2025]
-      //  the Kwikset Halo locks don't run through the SmartThings hub
-      // we support both types, but filter so we can update each system
-      const locksSmartThings =
-        systems.locks?.filter((lock) => lock.type === "smartthings") || [];
-      const locksKwiksetHalo =
-        systems.locks?.filter((lock) => lock.type === "kwikset-halo") || [];
-      const garages = systems.garages || [];
-      const watervalves = systems.watervalves || [];
+    // [djb 07/06/2025]
+    //  the Kwikset Halo locks don't run through the SmartThings hub
+    // we support both types, but filter so we can update each system
+    const locksSmartThings =
+      systems.locks?.filter((lock) => lock.type === "smartthings") || [];
+    const locksKwiksetHalo =
+      systems.locks?.filter((lock) => lock.type === "kwikset-halo") || [];
+    const garages = systems.garages || [];
+    const watervalves = systems.watervalves || [];
 
-      promises.push(camera.updateSystem(cameras));
-      promises.push(thermostat.updateSystem(thermostats));
-      promises.push(lockSmartThings.updateSystem(locksSmartThings));
-      promises.push(lockKwiksetHalo.updateSystem(locksKwiksetHalo));
-      promises.push(garage.updateSystem(garages));
-      promises.push(water.updateSystem(watervalves));
+    promises.push(camera.updateSystem(cameras));
+    promises.push(thermostat.updateSystem(thermostats));
+    promises.push(lockSmartThings.updateSystem(locksSmartThings));
+    promises.push(lockKwiksetHalo.updateSystem(locksKwiksetHalo));
+    promises.push(garage.updateSystem(garages));
+    promises.push(water.updateSystem(watervalves));
 
-      Promise.all(promises)
-        .then(() => {
-          console.log("system updates complete");
-          resolve(systems);
-        })
-        .catch((e) => {
-          reject(e);
-        });
-    });
+    await Promise.allSettled(promises);
+
+    return systems;
   };
 
-  const updateZones = function (zones) {
-    return new Promise((resolve, reject) => {
-      const promises = [];
+  const updateZones = async function (zones) {
+    const promises = [];
 
-      for (let i = 0; i < zones.length; i++) {
-        const zone = zones[i];
-        const cameras = zone.cameras || [];
-        const thermostats = zone.thermostats || [];
-        const locks = zone.locks || [];
+    for (let i = 0; i < zones.length; i++) {
+      const zone = zones[i];
+      const cameras = zone.cameras || [];
+      const thermostats = zone.thermostats || [];
+      const locks = zone.locks || [];
 
-        promises.push(camera.update(cameras));
-        promises.push(thermostat.updateSystem(thermostats));
+      promises.push(camera.update(cameras));
+      promises.push(thermostat.updateSystem(thermostats));
 
-        const smartThingsLocks = locks.filter(
-          (device) => device.type === "smartthings"
-        );
-        if (smartThingsLocks.length > 0) {
-          promises.push(lockSmartThings.updateSystem(smartThingsLocks));
-        }
-
-        const kwiksetHaloLocks = locks.filter(
-          (device) => device.type === "kwikset-halo"
-        );
-        if (kwiksetHaloLocks.length > 0) {
-          promises.push(lockKwiksetHalo.updateSystem(kwiksetHaloLocks));
-        }
+      const smartThingsLocks = locks.filter(
+        (device) => device.type === "smartthings"
+      );
+      if (smartThingsLocks.length > 0) {
+        promises.push(lockSmartThings.updateSystem(smartThingsLocks));
       }
 
-      Promise.all(promises)
-        .then(() => {
-          console.log("zones updates complete");
-          resolve(zones);
-        })
-        .catch((e) => {
-          reject(e);
-        });
-    });
-  };
+      const kwiksetHaloLocks = locks.filter(
+        (device) => device.type === "kwikset-halo"
+      );
+      if (kwiksetHaloLocks.length > 0) {
+        promises.push(lockKwiksetHalo.updateSystem(kwiksetHaloLocks));
+      }
+    }
+
+    await Promise.allSettled(promises);
+
+    return zones;
+};
 
   this.updateHomeStatus = async function (home) {
     const updates = JSON.parse(JSON.stringify(home));
